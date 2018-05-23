@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout  xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.ducnguyenvan.mysuperchatapplication.Contacts.ContactItemViewModel"/>
+        <variable
+            name="contact"
+            type="com.ducnguyenvan.mysuperchatapplication.Model.ContactItem"/>
+    </data>
+
+<RelativeLayout
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:layout_margin="20px"
+    android:onClick="@{() -> viewModel.onClick()}">
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:id="@+id/contact_img"
+        android:src="@{contact.img}"/>
+
+    <TextView
+        android:id="@+id/contact_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="20px"
+        android:layout_toEndOf="@+id/contact_img"
+        android:text="@{contact.contactName}"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+</RelativeLayout>
+</layout>

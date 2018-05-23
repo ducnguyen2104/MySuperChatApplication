@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "995751082633",
+    "firebase_url": "https://mysuperchatapplication.firebaseio.com",
+    "project_id": "mysuperchatapplication",
+    "storage_bucket": "mysuperchatapplication.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:995751082633:android:379830c2299b6071",
+        "android_client_info": {
+          "package_name": "com.ducnguyenvan.mysuperchatapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "995751082633-botc8eiotptgtfngscvlooaakji9m1du.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ducnguyenvan.mysuperchatapplication",
+            "certificate_hash": "ab8614a5284011b656265d0d257d321d142e94d9"
+          }
+        },
+        {
+          "client_id": "995751082633-v2fpheout5g5qk8dbk52bqc77fnb6csq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5JeoBDYAGtV-ad7BnDmT_Y3KaBrRT7Pk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "995751082633-v2fpheout5g5qk8dbk52bqc77fnb6csq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
