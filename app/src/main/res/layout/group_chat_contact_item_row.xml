@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="contact"
+            type="com.ducnguyenvan.mysuperchatapplication.Model.SelectableContactItem" />
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20px">
+
+        <ImageView
+            android:id="@+id/gr_chat_img"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/avt"
+            app:path="@{contact.contactName}" />
+
+        <TextView
+            android:id="@+id/contact_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20px"
+            android:layout_toEndOf="@+id/gr_chat_img"
+            android:text="@{contact.contactName}"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <CheckBox
+            android:id="@+id/gr_chat_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:buttonTint="@color/colorPrimary"
+            android:checked="@={contact.isSelected}"/>
+    </RelativeLayout>
+</layout>

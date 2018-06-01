@@ -26,8 +26,8 @@ public class ContactsFragment extends Fragment {
 
     EditText edt;
     Button btn;
-    static RecyclerView recyclerView;
-    static final ArrayList<ContactItem> contacts = new ArrayList<>();
+    public static RecyclerView recyclerView;
+    public static ArrayList<ContactItem> contacts; //= new ArrayList<>();
     ContactViewModel contactViewModel;
     FragmentContactsBinding fragmentContactsBinding;
     public static ContactsFragment newInstance() {
@@ -41,6 +41,7 @@ public class ContactsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //View rootView = inflater.inflate(R.layout.fragment_contacts,container,false);
+        contacts = new ArrayList<>();
         fragmentContactsBinding = DataBindingUtil.inflate(inflater,R.layout.fragment_contacts,container,false);
         View rootView = fragmentContactsBinding.getRoot();
         contactViewModel = new ContactViewModel(getActivity());

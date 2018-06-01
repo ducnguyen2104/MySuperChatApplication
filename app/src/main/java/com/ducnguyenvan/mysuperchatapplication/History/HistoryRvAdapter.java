@@ -1,16 +1,15 @@
 package com.ducnguyenvan.mysuperchatapplication.History;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.ducnguyenvan.mysuperchatapplication.Model.ConversationItem;
 import com.ducnguyenvan.mysuperchatapplication.R;
+import com.ducnguyenvan.mysuperchatapplication.databinding.ConversationItemRowBinding;
 
 import java.util.ArrayList;
 
@@ -18,6 +17,8 @@ public class HistoryRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     ArrayList<ConversationItem> conversations;
     Context context;
+    ConversationItemRowBinding conversationItemRowBinding;
+    ConversationItemViewModel conversationItemViewModel;
 
     public HistoryRvAdapter(ArrayList<ConversationItem> conversations, Context context) {
         this.conversations = conversations;
@@ -29,13 +30,17 @@ public class HistoryRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View view = layoutInflater.inflate(R.layout.conversation_item_row, parent, false);
-        return new HistoryRvAdapter.ConversationItemViewHolder(view);
+        conversationItemRowBinding = DataBindingUtil.inflate(layoutInflater,R.layout.conversation_item_row,parent,false);
+        conversationItemViewModel = new ConversationItemViewModel(context);
+        conversationItemRowBinding.setViewModel(conversationItemViewModel);
+        return new ConversationItemViewHolder(conversationItemRowBinding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((ConversationItemViewHolder)holder).bind(conversations.get(position));
+        ConversationItem item = conversations.get(position);
+        ((ConversationItemViewHolder)holder).bind(item);
+        conversationItemViewModel.cId = item.getcId();
     }
 
     @Override
@@ -45,24 +50,16 @@ public class HistoryRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private static class ConversationItemViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView img;
-        TextView name;
-        TextView lastMsg;
-        TextView lastMsgTime;
+        private ConversationItemRowBinding conversationItemRowBinding;
 
-        public ConversationItemViewHolder(View itemView) {
-            super(itemView);
-            img = itemView.findViewById(R.id.history_img);
-            name = itemView.findViewById(R.id.history_name);
-            lastMsg = itemView.findViewById(R.id.history_last_msg);
-            lastMsgTime = itemView.findViewById(R.id.history_last_msg_time);
+        public ConversationItemViewHolder(ConversationItemRowBinding conversationItemRowBinding) {
+            super(conversationItemRowBinding.getRoot());
+            this.conversationItemRowBinding = conversationItemRowBinding;
         }
 
         public void bind(ConversationItem item) {
-            img.setImageResource(item.getImg());
-            name.setText(item.getConversationName());
-            lastMsg.setText(item.getLastMsg());
-            lastMsgTime.setText(item.getLastMsgTime());
+            this.conversationItemRowBinding.setConversation(item);
+            this.conversationItemRowBinding.executePendingBindings();
         }
     }
 }

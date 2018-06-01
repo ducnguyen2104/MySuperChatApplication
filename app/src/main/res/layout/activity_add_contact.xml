@@ -17,7 +17,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nhập só điện thoại để tìm kiếm"
+        android:hint="Nhập số điện thoại để tìm kiếm"
         android:id="@+id/add_contact_edt"
         android:textSize="24sp"
         android:layout_gravity="center_horizontal"/>

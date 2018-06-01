@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="settingViewModel"
+            type="com.ducnguyenvan.mysuperchatapplication.Setting.SettingViewModel"/>
+    </data>
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -31,7 +38,7 @@
         android:layout_below="@+id/setting_toolbar"
         android:layout_gravity="center_horizontal"
         android:layout_margin="20px"
-        android:text="Xin chào Ếch xanh!"
+        android:text="@={settingViewModel.greeting}"
         android:textSize="24sp" />
 
     <Button
@@ -40,7 +47,8 @@
         android:layout_height="wrap_content"
         android:text="Đổi ảnh đại diện"
         android:textAllCaps="false"
-        android:textSize="24sp" />
+        android:textSize="24sp"/>
+        <!--android:onClick="@{() -> settingViewModel.onChangeAvtClick()}"/> -->
 
     <Button
         android:id="@+id/change_pass"
@@ -48,5 +56,7 @@
         android:layout_height="wrap_content"
         android:text="Đổi mật khẩu"
         android:textAllCaps="false"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:onClick="@{() -> settingViewModel.onChangePasswordClick()}"/>
 </LinearLayout>
+</layout>

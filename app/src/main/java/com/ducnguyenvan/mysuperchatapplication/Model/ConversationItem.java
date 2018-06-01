@@ -3,12 +3,22 @@ package com.ducnguyenvan.mysuperchatapplication.Model;
 public class ConversationItem {
 
     private int img;
+    private String cId;
     private String conversationName;
     private String lastMsg;
     private String lastMsgTime;
 
-    public ConversationItem(int img, String conversationName, String lastMsg, String lastMsgTime) {
+    public String getcId() {
+        return cId;
+    }
+
+    public void setcId(String cId) {
+        this.cId = cId;
+    }
+
+    public ConversationItem(int img, String cId, String conversationName, String lastMsg, String lastMsgTime) {
         this.img = img;
+        this.cId = cId;
         this.conversationName = conversationName;
         this.lastMsg = lastMsg;
         this.lastMsgTime = lastMsgTime;

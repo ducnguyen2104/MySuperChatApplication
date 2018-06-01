@@ -1,6 +1,8 @@
 package com.ducnguyenvan.mysuperchatapplication.Model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class User {
     public String username;
@@ -85,5 +87,16 @@ public class User {
         this.phonenumber = phonenumber;
         this.contacts = contacts;
         this.conversations = conversations;
+    }
+
+    public void mapToObject(Map<String, Object> map) {
+        this.username = map.get("username").toString();
+        this.password = map.get("password").toString();
+        this.fullname = map.get("fullname").toString();
+        this.phonenumber = map.get("phonenumber").toString();
+        HashMap<String,String> cont = (HashMap<String,String>)map.get("contacts");
+        this.contacts = (cont != null ? new ArrayList<>(cont.values()) : new ArrayList<String>());
+        HashMap<String,String> conv = (HashMap<String,String>)map.get("conversations");
+        this.conversations = (conv != null ? new ArrayList<>(conv.values()) : new ArrayList<String>());
     }
 }

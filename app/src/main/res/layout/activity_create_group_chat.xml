@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.ducnguyenvan.mysuperchatapplication.History.CreateGroupChat.CreateGroupChatViewModel"/>
+    </data>
+<RelativeLayout
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:id="@+id/groupchat_toolbar">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Tạo nhóm chat"
+                android:textSize="24sp"
+                android:textColor="@android:color/white"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:layout_alignParentRight="true"
+                android:text="➤"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                android:onClick="@{() -> viewModel.onClick()}"/>
+
+        </RelativeLayout>
+
+    </Toolbar>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/groupchat_toolbar"
+        android:id="@+id/groupchat_rv">
+
+    </android.support.v7.widget.RecyclerView>
+
+</RelativeLayout>
+</layout>

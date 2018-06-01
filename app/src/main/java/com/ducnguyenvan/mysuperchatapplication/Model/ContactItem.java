@@ -2,8 +2,8 @@ package com.ducnguyenvan.mysuperchatapplication.Model;
 
 public class ContactItem {
 
-    private int img;
-    private String contactName;
+    public int img;
+    public String contactName;
 
     public ContactItem(int img, String contactName) {
         this.img = img;

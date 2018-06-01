@@ -1,9 +1,22 @@
 package com.ducnguyenvan.mysuperchatapplication.Model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class Conversation {
     public String cId;
     public Message lastMessage;
     public String title;
+    public ArrayList<String> members;
+
+    public ArrayList<String> getMembers() {
+        return members;
+    }
+
+    public void setMembers(ArrayList<String> members) {
+        this.members = members;
+    }
 
     public String getcId() {
         return cId;
@@ -13,16 +26,18 @@ public class Conversation {
         this.cId = cId;
     }
 
-    public Conversation(String cId, Message lastMessage, String title) {
+    public Conversation(String cId, Message lastMessage, String title, ArrayList<String> members) {
         this.cId = cId;
         this.lastMessage = lastMessage;
         this.title = title;
+        this.members = members;
     }
 
     public Conversation() {
         this.cId = null;
-        this.lastMessage = null;
+        this.lastMessage = new Message();
         this.title = null;
+        this.members = new ArrayList<>();
     }
 
     public Message getLastMessage() {
@@ -39,6 +54,25 @@ public class Conversation {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Map<String, Object> toMap() {
+        HashMap<String,Object> result = new HashMap<>();
+        result.put("cId", cId);
+        result.put("lastMessage", lastMessage);
+        result.put("title", title);
+        result.put("members", members);
+
+        return result;
+    }
+
+    public void mapToObject (Map<String,Object> map) {
+        ArrayList<Object> values = new ArrayList<>(map.values());
+        //this.cId = values.get(3).toString();
+        this.cId = map.get("cId").toString();
+        this.lastMessage.mapToObject((HashMap<String, Object>) map.get("lastMessage"));
+        this.title = map.get("title").toString();
+        this.members = (ArrayList<String>)map.get("members");
     }
 }
 

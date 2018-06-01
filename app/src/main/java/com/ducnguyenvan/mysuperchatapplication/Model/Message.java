@@ -1,5 +1,7 @@
 package com.ducnguyenvan.mysuperchatapplication.Model;
 
+import java.util.Map;
+
 public class Message {
     private String message;
     private String name;
@@ -39,5 +41,11 @@ public class Message {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public void mapToObject(Map<String,Object> map) {
+        this.message = map.get("message").toString();
+        this.name = map.get("name").toString();
+        this.timestamp = 0;
     }
 }

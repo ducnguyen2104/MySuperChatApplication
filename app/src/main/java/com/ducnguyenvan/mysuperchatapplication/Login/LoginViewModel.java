@@ -14,8 +14,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginViewModel extends ViewModel {
 
@@ -44,8 +46,8 @@ public class LoginViewModel extends ViewModel {
     }
 
     private void verifyUserAndLogin() {
-        DatabaseReference databaseReference = database.child("users");
-        Query userQuery = databaseReference.orderByChild("username").equalTo(username);
+        DatabaseReference databaseReference = database.child("users").child(username);
+        /*Query userQuery = databaseReference.orderByChild("username").equalTo(username);
         userQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             User user = new User();
             @Override
@@ -61,7 +63,33 @@ public class LoginViewModel extends ViewModel {
                     ((Activity)context).finish();
                 }}
                 else {
-                    Toast.makeText(context,"Invalid username or password!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context,"Tên đăng nhập hoặc mật khẩu không đúng", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });*/
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            User user = new User();
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String,Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
+                //user = dataSnapshot.getValue(User.class);
+                //ArrayList<User> users = new ArrayList<>(map.values());
+                Log.i("user snapshot",   ", map:" + map);
+                String pass = map.get("password").toString();
+                String uid = map.get("username").toString();
+                if(pass != null && pass.equals(password)){{
+                    Intent intent = new Intent(context,MainActivity.class);
+                    intent.putExtra("username",uid);
+                    context.startActivity(intent);
+                    ((Activity)context).finish();
+                }}
+                else {
+                    Toast.makeText(context,"Tên đăng nhập hoặc mật khẩu không đúng", Toast.LENGTH_LONG).show();
                 }
             }
 

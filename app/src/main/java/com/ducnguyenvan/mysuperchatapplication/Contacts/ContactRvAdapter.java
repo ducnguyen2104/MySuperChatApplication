@@ -40,6 +40,7 @@ public class ContactRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ContactItem contactItem = contacts.get(position);
         ((ContactItemViewHolder)holder).bind(contactItem);
+        viewModel.username = contactItem.getContactName();
     }
 
     @Override

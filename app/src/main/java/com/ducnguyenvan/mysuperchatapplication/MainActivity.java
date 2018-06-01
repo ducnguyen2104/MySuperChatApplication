@@ -19,8 +19,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.i("main", "create");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -43,18 +46,20 @@ public class MainActivity extends AppCompatActivity {
         scrWidth = displayMetrics.widthPixels;
         String username = getIntent().getStringExtra("username");
         database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference databaseReference = database.child("users");
-        Query userQuery = databaseReference.orderByChild("username").equalTo(username);
-        userQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+        currentUser = new User();
+        DatabaseReference databaseReference = database.child("users").child(username);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    currentUser = singleSnapshot.getValue(User.class);
+                    Map<String,Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
+                    currentUser.mapToObject(map);
                     Log.i("main conversation", currentUser.getConversations()+"");
                 }
                 mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
                 mViewPager = (ViewPager) findViewById(R.id.container);
                 mViewPager.setAdapter(mSectionsPagerAdapter);
+                mViewPager.setOffscreenPageLimit(2);
                 TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
                 tabLayout.setupWithViewPager(mViewPager);
             }
@@ -69,6 +74,13 @@ public class MainActivity extends AppCompatActivity {
 //        mViewPager.setAdapter(mSectionsPagerAdapter);
 //        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 //        tabLayout.setupWithViewPager(mViewPager);
+    }
+
+    @Override
+    public void onBackPressed() {
+        currentUser = null;
+        finish();
+        super.onBackPressed();
     }
 
     public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
@@ -109,5 +121,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
+
     }
+
 }

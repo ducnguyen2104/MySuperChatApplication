@@ -24,6 +24,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AddContactActivity extends AppCompatActivity {
 
@@ -63,17 +65,18 @@ public class AddContactActivity extends AppCompatActivity {
             DatabaseReference databaseReference = MainActivity.database.child("users");
             Query userQuery = databaseReference.orderByChild("phonenumber").equalTo(finđEdt.getText().toString());
             userQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                User user = new User();
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                        user = singleSnapshot.getValue(User.class);
-                    }
-                    if(user.getUsername() != null) {
-                        resultTxt.setText(user.getUsername());
-                    }
-                    else {
-                        resultTxt.setText("Không tìm thấy, vui lòng kiểm tra lại số điện thoại");
+                        Map<String,Object> map = (HashMap<String,Object>)singleSnapshot.getValue();
+                        User user = new User();
+                        user.mapToObject(map);
+                        if(user.getUsername() != null) {
+                            resultTxt.setText(user.getUsername());
+                        }
+                        else {
+                            resultTxt.setText("Không tìm thấy, vui lòng kiểm tra lại số điện thoại");
+                        }
                     }
                     resultTxt.setVisibility(View.VISIBLE);
                 }

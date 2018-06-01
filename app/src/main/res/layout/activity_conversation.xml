@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Conversation Name"
+            android:text="@{conversationViewModel.converrsationName}"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             android:id="@+id/conversation_name"/>
@@ -45,10 +45,12 @@
             android:text="@={conversationViewModel.message}"/>
 
         <Button
+            android:id="@+id/conversation_btn_send"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gửi"
-            android:onClick="@{() -> conversationViewModel.onSendBtnClicked()}"/>
+            android:onClick="@{() -> conversationViewModel.onSendBtnClicked()}"
+            android:text="➠"
+            android:textSize="24sp"/>
     </LinearLayout>
 
 </RelativeLayout>
