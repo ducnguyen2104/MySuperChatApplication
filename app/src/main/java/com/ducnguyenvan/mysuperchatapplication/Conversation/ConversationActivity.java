@@ -11,8 +11,11 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.ducnguyenvan.mysuperchatapplication.History.HistoryFragment;
 import com.ducnguyenvan.mysuperchatapplication.MainActivity;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.BaseMessageItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.MessageTextItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyImageMessageItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyMessageTextItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Message;
 import com.ducnguyenvan.mysuperchatapplication.R;
 import com.ducnguyenvan.mysuperchatapplication.databinding.ActivityConversationBinding;
@@ -29,12 +32,13 @@ import java.util.Map;
 public class ConversationActivity extends AppCompatActivity {
 
     static RecyclerView recyclerView;
-    static ArrayList<Message> messages = new ArrayList<>();
+    static ArrayList<BaseMessageItem> messageItems = new ArrayList<>();
     ActivityConversationBinding activityConversationBinding;
     static ConversationViewModel conversationViewModel;
     EditText editText;
     Button btn;
     static String currentCId;
+    static String membersString;
     static boolean isConversationCreated = false;
     static DatabaseReference messageRef;
 
@@ -42,6 +46,10 @@ public class ConversationActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         currentCId = getIntent().getStringExtra("cId"); //username1|username2
+        membersString = getIntent().getStringExtra("membersString"); //!= null is conversation has 2 or more members
+        if(membersString == null) {
+            membersString = "";
+        }
         Log.i("current cid", currentCId + "");
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ConversationActivity.this.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -73,11 +81,13 @@ public class ConversationActivity extends AppCompatActivity {
     }
 
     public static void initRecyclerView() {
+        MessageTextItem lastMessage = new MessageTextItem();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext(),LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
-        final MessageRvAdapter adapter = new MessageRvAdapter(messages,recyclerView.getContext());
+        final MessageRvAdapter adapter = new MessageRvAdapter(messageItems,recyclerView.getContext());
         recyclerView.setAdapter(adapter);
         DatabaseReference databaseReference = MainActivity.database.child("messages").child(currentCId);
+        boolean lastMsgMyMsg = false;
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -85,8 +95,17 @@ public class ConversationActivity extends AppCompatActivity {
                     Message message = new Message();
                     Map<String, Object> map = (HashMap<String,Object>) singleSnapshot.getValue();
                     message.mapToObject(map);
-                    messages.add(message);
-                    adapter.notifyItemInserted(messages.size() - 1);
+                    String msg = message.getMessage() ;
+                    if(!msg.equals(":o")) {
+                        if (message.getName().equals(MainActivity.currentUser.getUsername())) {
+                            messageItems.add(new MyMessageTextItem(message.getName(), msg, message.getTimestamp()));
+                        } else {
+                            messageItems.add(new MessageTextItem(R.drawable.avt, message.getName(), message.getMessage(), message.getTimestamp()));
+                        }
+                    } else {
+                        messageItems.add(new MyImageMessageItem(message.getName(), R.drawable.whatt, message.getTimestamp()));
+                    }
+                    adapter.notifyItemInserted(messageItems.size() - 1);
                     updateRecyclerView();
                 }
             }
@@ -98,19 +117,14 @@ public class ConversationActivity extends AppCompatActivity {
         });
     }
 
-
-    @Override
-    protected void onDestroy() {
-        messages.clear();
-        activityConversationBinding.unbind();
-        recyclerView = null;
-        HistoryFragment.updateRecyclerView();
-        super.onDestroy();
-    }
-
     @Override
     protected void onStop() {
+        messageItems.clear();
+        activityConversationBinding.unbind();
+        recyclerView = null;
+        conversationViewModel = null;
         super.onStop();
+
     }
 
     @Override
@@ -123,25 +137,29 @@ public class ConversationActivity extends AppCompatActivity {
         messageRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.i("child added", "...");
                 Message newMessage = new Message();
                 Map<String, Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
                 newMessage.mapToObject(map);
                 //newMessage = dataSnapshot.getValue(Message.class);
-                for(int i = 0; i < messages.size(); i++) {
-                    Log.i("new msg", "" + newMessage.getName().equals(messages.get(i).getName()) + newMessage.getMessage().equals(messages.get(i).getMessage()));
-                    if(newMessage.getName().equals(messages.get(i).getName()) && newMessage.getMessage().equals(messages.get(i).getMessage())
-                            && newMessage.getTimestamp() == messages.get(i).getTimestamp()) {
+                for(int i = 0; i < messageItems.size(); i++) {
+                    if(newMessage.getName().equals(messageItems.get(i).getUsername())
+                            && newMessage.getTimestamp().equals(messageItems.get(i).getTimestamp())) {
                         //if message is already present, return
-                        Log.i("child added", "return");
                         return;
                     }
                 }
-                /*if(messages.contains(newMessage)) {
-                    return;
-                }*/
-                messages.add(newMessage);
-                recyclerView.getAdapter().notifyItemInserted(messages.size() -1);
+                if(!newMessage.getMessage().equals(":o")) {
+                    if (newMessage.getName().equals(MainActivity.currentUser.getUsername())) {
+                        String msg = newMessage.getMessage();
+                        messageItems.add(new MyMessageTextItem(newMessage.getName(), msg, newMessage.getTimestamp()));
+                    } else {
+                        messageItems.add(new MessageTextItem(R.drawable.avt, newMessage.getName(), newMessage.getMessage(), newMessage.getTimestamp()));
+                    }
+                }
+                else {
+                    messageItems.add(new MyImageMessageItem(newMessage.getName(),R.drawable.whatt,newMessage.getTimestamp()));
+                }
+                recyclerView.getAdapter().notifyItemInserted(messageItems.size() -1);
             }
 
             @Override

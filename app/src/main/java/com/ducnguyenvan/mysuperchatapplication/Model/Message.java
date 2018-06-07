@@ -5,9 +5,9 @@ import java.util.Map;
 public class Message {
     private String message;
     private String name;
-    private long timestamp;
+    private String timestamp;
 
-    public Message(String message, String name, long timestamp) {
+    public Message(String message, String name, String timestamp) {
         this.message = message;
         this.name = name;
         this.timestamp = timestamp;
@@ -16,7 +16,7 @@ public class Message {
     public Message() {
         this.message = null;
         this.name = null;
-        this.timestamp = 0;
+        this.timestamp = null;
     }
 
     public String getMessage() {
@@ -35,17 +35,17 @@ public class Message {
         this.name = name;
     }
 
-    public long getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
     public void mapToObject(Map<String,Object> map) {
         this.message = map.get("message").toString();
         this.name = map.get("name").toString();
-        this.timestamp = 0;
+        this.timestamp = map.get("timestamp").toString();
     }
 }

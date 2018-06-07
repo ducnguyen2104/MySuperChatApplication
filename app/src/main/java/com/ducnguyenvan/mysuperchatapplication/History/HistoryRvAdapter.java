@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.ducnguyenvan.mysuperchatapplication.Model.ConversationItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.ConversationItem;
 import com.ducnguyenvan.mysuperchatapplication.R;
 import com.ducnguyenvan.mysuperchatapplication.databinding.ConversationItemRowBinding;
 

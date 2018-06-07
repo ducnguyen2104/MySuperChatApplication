@@ -6,7 +6,7 @@
 
         <variable
             name="contact"
-            type="com.ducnguyenvan.mysuperchatapplication.Model.SelectableContactItem" />
+            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.SelectableContactItem" />
 
     </data>
 
@@ -17,8 +17,8 @@
 
         <ImageView
             android:id="@+id/gr_chat_img"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:src="@drawable/avt"
             app:path="@{contact.contactName}" />
 
@@ -30,7 +30,7 @@
             android:layout_marginLeft="20px"
             android:layout_toEndOf="@+id/gr_chat_img"
             android:text="@{contact.contactName}"
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <CheckBox

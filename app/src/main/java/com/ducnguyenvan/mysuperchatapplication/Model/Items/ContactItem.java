@@ -1,6 +1,6 @@
-package com.ducnguyenvan.mysuperchatapplication.Model;
+package com.ducnguyenvan.mysuperchatapplication.Model.Items;
 
-public class ContactItem {
+public class ContactItem implements Item{
 
     public int img;
     public String contactName;
@@ -25,4 +25,17 @@ public class ContactItem {
     public void setContactName(String contactName) {
         this.contactName = contactName;
     }
+
+    @Override
+    public boolean equalsContent(Object other) {
+        return  other instanceof ContactItem &&
+               ((ContactItem) other).contactName.equals(this.contactName) &&
+                ((ContactItem) other).img == this.img;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return this == other;
+    }
 }
+

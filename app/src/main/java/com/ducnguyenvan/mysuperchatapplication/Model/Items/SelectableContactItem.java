@@ -1,4 +1,4 @@
-package com.ducnguyenvan.mysuperchatapplication.Model;
+package com.ducnguyenvan.mysuperchatapplication.Model.Items;
 
 public class SelectableContactItem {
 

@@ -10,8 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.LinearLayout;
 
 import com.ducnguyenvan.mysuperchatapplication.Contacts.ContactsFragment;
-import com.ducnguyenvan.mysuperchatapplication.Model.ContactItem;
-import com.ducnguyenvan.mysuperchatapplication.Model.SelectableContactItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.ContactItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.SelectableContactItem;
 import com.ducnguyenvan.mysuperchatapplication.R;
 import com.ducnguyenvan.mysuperchatapplication.databinding.ActivityCreateGroupChatBinding;
 

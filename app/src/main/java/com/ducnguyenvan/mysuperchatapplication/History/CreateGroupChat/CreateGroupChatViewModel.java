@@ -4,11 +4,10 @@ import android.app.Activity;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.ducnguyenvan.mysuperchatapplication.Conversation.ConversationActivity;
 import com.ducnguyenvan.mysuperchatapplication.MainActivity;
-import com.ducnguyenvan.mysuperchatapplication.Model.SelectableContactItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.SelectableContactItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +21,7 @@ public class CreateGroupChatViewModel extends ViewModel {
     }
 
     public void onClick() {
-        String cId = "";
+        String membersString = ""; //format: mem1*mem2*...
         ArrayList<String> members = new ArrayList<>();
         members.add(MainActivity.currentUser.getUsername());
         for(SelectableContactItem item : CreateGrChatActivity.contacts) {
@@ -32,15 +31,18 @@ public class CreateGroupChatViewModel extends ViewModel {
         }
         Collections.sort(members);
         for(String s : members) {
-            if(cId.length() == 0) {
-                cId += s;
+            if(membersString.length() == 0) {
+                membersString += s;
             }
             else {
-                cId += ("*" + s);
+                membersString += ("*" + s);
             }
         }
-        Log.i("cId", "" + cId);
+
+        //put string into intent
         Intent intent = new Intent(context,ConversationActivity.class);
+        intent.putExtra("membersString", membersString);
+        String cId = MainActivity.database.child("conversations").push().getKey();
         intent.putExtra("cId", cId);
         (context).startActivity(intent);
         ((Activity)context).finish();

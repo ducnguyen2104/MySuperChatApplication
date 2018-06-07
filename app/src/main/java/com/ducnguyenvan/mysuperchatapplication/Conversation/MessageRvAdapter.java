@@ -1,93 +1,129 @@
 package com.ducnguyenvan.mysuperchatapplication.Conversation;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import com.ducnguyenvan.mysuperchatapplication.MainActivity;
-import com.ducnguyenvan.mysuperchatapplication.Model.Message;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.BaseItemAdapter;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.BaseItemViewHolder;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.BaseMessageItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.MessageTextItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyImageMessageItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyMessageTextItem;
 import com.ducnguyenvan.mysuperchatapplication.R;
+import com.ducnguyenvan.mysuperchatapplication.databinding.MyImgMessageItemRowBinding;
+import com.ducnguyenvan.mysuperchatapplication.databinding.MyMessageItemRowBinding;
+import com.ducnguyenvan.mysuperchatapplication.databinding.YourMessageItemRowBinding;
 
 import java.util.ArrayList;
 
-public class MessageRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class MessageRvAdapter extends BaseItemAdapter {
 
-
-    private static final int MSG_ME = 0;
-    private static final int MSG_YOU = 1;
-    ArrayList<Message> messages;
+    private static final int MSG_TXT_ME = 0;
+    private static final int MSG_TXT_YOU = 1;
+    private static final int MSG_IMG_ME = 2;
+    private static final int MSG_IMG_YOU = 3;
+    ArrayList<BaseMessageItem> messages;
     Context context;
+    MyMessageItemRowBinding myBinding;
+    YourMessageItemRowBinding yourbinding;
+    MyImgMessageItemRowBinding myImgBinding;
 
-    public MessageRvAdapter(ArrayList<Message> messages, Context context) {
+    public MessageRvAdapter(ArrayList<BaseMessageItem> messages, Context context) {
         this.messages = messages;
         this.context = context;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if(messages.get(position).getName().equals(MainActivity.currentUser.getUsername())) {
-            return MSG_ME;
-        }
-        else {
-            return MSG_YOU;
+        if (messages.get(position) instanceof MyMessageTextItem) {
+            return MSG_TXT_ME;
+        } else if (messages.get(position) instanceof MessageTextItem) {
+            return MSG_TXT_YOU;
+        } else if (messages.get(position) instanceof MyImageMessageItem) {
+            return MSG_IMG_ME;
+        } else {
+            return -1;
         }
     }
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public BaseItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        if(viewType == MSG_ME) {
-            View view = layoutInflater.inflate(R.layout.my_message_item_row, parent, false);
-            return new MyMessageItemViewHolder(view);
-        }
-        else {
-            View view = layoutInflater.inflate(R.layout.your_message_item_row, parent, false);
-            return new MyMessageItemViewHolder(view);
+        switch (viewType) {
+            case MSG_TXT_ME:
+                myBinding = DataBindingUtil.inflate(layoutInflater, R.layout.my_message_item_row, parent, false);
+                return new MyMessageItemViewHolder(myBinding);
+            case MSG_TXT_YOU:
+                yourbinding = DataBindingUtil.inflate(layoutInflater, R.layout.your_message_item_row, parent, false);
+                return new YourMessageItemViewHolder(yourbinding);
+            case MSG_IMG_ME:
+                myImgBinding = DataBindingUtil.inflate(layoutInflater, R.layout.my_img_message_item_row, parent, false);
+                return new MyMessageImgItemViewHolder(myImgBinding);
+            default:
+                return null;
         }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if(holder instanceof MyMessageItemViewHolder) {
-            ((MyMessageItemViewHolder) holder).bind(messages.get(position));
-        }
-        else {
-            ((YourMessageItemViewHolder) holder).bind(messages.get(position));
+    public void onBindViewHolder(@NonNull BaseItemViewHolder holder, int position) {
+        if (holder instanceof MyMessageItemViewHolder) {
+            ((MyMessageItemViewHolder) holder).bind((MyMessageTextItem) messages.get(position));
+        } else if(holder instanceof YourMessageItemViewHolder) {
+            ((YourMessageItemViewHolder) holder).bind((MessageTextItem) messages.get(position));
+        } else {
+            ((MyMessageImgItemViewHolder) holder).bind((MyImageMessageItem) messages.get(position));
         }
     }
+
 
     @Override
     public int getItemCount() {
         return messages != null ? messages.size() : 0;
     }
 
-    private static class MyMessageItemViewHolder extends RecyclerView.ViewHolder {
+    private static class MyMessageItemViewHolder extends BaseItemViewHolder {
+        private MyMessageItemRowBinding myBinding;
 
-        TextView msg;
-        public MyMessageItemViewHolder(View itemView) {
-            super(itemView);
-            msg = itemView.findViewById(R.id.message_content);
+        public MyMessageItemViewHolder(MyMessageItemRowBinding myBinding) {
+            super(myBinding.getRoot());
+            this.myBinding = myBinding;
         }
 
-        public void bind(Message message) {
-            msg.setText(message.getName() + ": " + message.getMessage());
+        public void bind(MyMessageTextItem message) {
+            this.myBinding.setMessage(message);
+            this.myBinding.executePendingBindings();
         }
     }
 
-    private static class YourMessageItemViewHolder extends RecyclerView.ViewHolder {
+    private static class MyMessageImgItemViewHolder extends BaseItemViewHolder {
+        private MyImgMessageItemRowBinding myBinding;
 
-        TextView msg;
-        public YourMessageItemViewHolder(View itemView) {
-            super(itemView);
-            msg = itemView.findViewById(R.id.message_content);
+        public MyMessageImgItemViewHolder(MyImgMessageItemRowBinding myBinding) {
+            super(myBinding.getRoot());
+            this.myBinding = myBinding;
         }
 
-        public void bind(Message message) {
+        public void bind(MyImageMessageItem message) {
+            this.myBinding.setMessage(message);
+            this.myBinding.executePendingBindings();
+        }
+    }
+
+    private static class YourMessageItemViewHolder extends BaseItemViewHolder {
+        private YourMessageItemRowBinding yourBinding;
+
+        public YourMessageItemViewHolder(YourMessageItemRowBinding yourBinding) {
+            super(yourBinding.getRoot());
+            this.yourBinding = yourBinding;
+        }
+
+        public void bind(MessageTextItem message) {
+            this.yourBinding.setMessage(message);
+            this.yourBinding.executePendingBindings();
         }
     }
 }

@@ -26,14 +26,14 @@
                         android:textColorHint="#ffffff"
                         android:shadowColor="#ffffff"
                         android:textColor="#ffffff"
-                        android:textSize="25px"
+                        android:textSize="18sp"
                         android:id="@+id/find_conversation_edt"/>
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@color/colorPrimary"
                         android:text="+"
-                        android:textSize="35px"
+                        android:textSize="24sp"
                         android:textColor="#ffffff"
                         android:id="@+id/create_grchat_btn"/>
                 </LinearLayout>

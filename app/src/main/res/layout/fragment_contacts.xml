@@ -40,8 +40,7 @@
                             android:shadowColor="#ffffff"
                             android:textColor="#ffffff"
                             android:textColorHint="#ffffff"
-
-                            android:textSize="25px" />
+                            android:textSize="18sp" />
 
                         <Button
                             android:id="@+id/create_grchat_btn"
@@ -51,7 +50,7 @@
                             android:onClick="@{() -> contactViewModel.onAddButtonClicked()}"
                             android:text="+"
                             android:textColor="#ffffff"
-                            android:textSize="35px" />
+                            android:textSize="24sp" />
                     </LinearLayout>
                 </Toolbar>
 

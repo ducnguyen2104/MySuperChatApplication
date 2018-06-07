@@ -22,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:text="Tạo nhóm chat"
-                android:textSize="24sp"
+                android:textSize="18sp"
                 android:textColor="@android:color/white"/>
 
             <Button
@@ -40,10 +40,11 @@
     </Toolbar>
 
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/groupchat_rv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/groupchat_toolbar"
-        android:id="@+id/groupchat_rv">
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/groupchat_toolbar">
 
     </android.support.v7.widget.RecyclerView>
 

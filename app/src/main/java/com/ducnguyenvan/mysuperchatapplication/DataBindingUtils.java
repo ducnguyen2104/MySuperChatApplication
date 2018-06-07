@@ -31,7 +31,7 @@ public class DataBindingUtils  {
     public static void setConversationimg(ImageView imageView, String name) {
         Context context = imageView.getContext();
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        boolean isGroupchat = name.toLowerCase().contains("group chat".toLowerCase());
+        boolean isGroupchat = name.toLowerCase().contains(", ".toLowerCase());
         StorageReference avtStorageReference = storage.getReference().child("avartar").child((isGroupchat ? "group" : name) + ".jpg");
         GlideApp.with((Activity) context).load(avtStorageReference)
                 .centerCrop()
@@ -39,5 +39,9 @@ public class DataBindingUtils  {
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
                 .into(imageView);
+    }
+    @BindingAdapter("android:src")
+    public static void setImageViewResource(ImageView imageView, int resource) {
+        imageView.setImageResource(resource);
     }
 }

@@ -1,6 +1,6 @@
-package com.ducnguyenvan.mysuperchatapplication.Model;
+package com.ducnguyenvan.mysuperchatapplication.Model.Items;
 
-public class ConversationItem {
+public class ConversationItem implements Item {
 
     private int img;
     private String cId;
@@ -54,5 +54,22 @@ public class ConversationItem {
 
     public void setLastMsgTime(String lastMsgTime) {
         this.lastMsgTime = lastMsgTime;
+    }
+
+    @Override
+    public boolean equalsContent(Object other) {
+        return other instanceof ConversationItem &&
+                ((ConversationItem) other).getcId().equals(this.getcId()) &&
+                ((ConversationItem) other).getConversationName().equals(this.getConversationName()) &&
+                ((ConversationItem) other).getLastMsg().equals(this.getLastMsg()) &&
+                ((ConversationItem) other).getLastMsgTime().equals(this.getLastMsg()) &&
+                ((ConversationItem) other).getImg() == this.getImg();
+
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof ConversationItem &&
+                ((ConversationItem) obj).getcId().equals(this.getcId());
     }
 }

@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="message"
+            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.MessageTextItem"/>
+    </data>
+<RelativeLayout
     android:layout_width="match_parent" android:layout_height="wrap_content">
 
+    <ImageView
+        android:layout_margin="10px"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/avt"
+        android:id="@+id/msg_avt"
+        app:path="@{message.username}"/>
+
     <TextView
-        android:layout_marginLeft="10px"
-        android:layout_marginTop="10px"
-        android:layout_marginBottom="10px"
+        android:layout_margin="10px"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/message_content"
-        android:text="Message content"
+        android:text="@{message.message}"
         android:padding="10px"
-        android:layout_alignParentLeft="true"
+        android:layout_toEndOf="@+id/msg_avt"
         android:background="@color/yourMsgColor"/>
 </RelativeLayout>
+</layout>

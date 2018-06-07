@@ -18,7 +18,7 @@ import android.widget.LinearLayout;
 import com.ducnguyenvan.mysuperchatapplication.History.CreateGroupChat.CreateGrChatActivity;
 import com.ducnguyenvan.mysuperchatapplication.MainActivity;
 import com.ducnguyenvan.mysuperchatapplication.Model.Conversation;
-import com.ducnguyenvan.mysuperchatapplication.Model.ConversationItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.ConversationItem;
 import com.ducnguyenvan.mysuperchatapplication.R;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -49,7 +49,6 @@ public class HistoryFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        Log.i("history frag", "create");
         conversations = new ArrayList<>();
         conversationsItem = new ArrayList<>();
         View rootView = inflater.inflate(R.layout.fragment_history,container,false);
@@ -86,20 +85,29 @@ public class HistoryFragment extends Fragment {
                     for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
                         Conversation conversation = new Conversation();
                         Map<String,Object> map = (HashMap<String,Object>) singleSnapshot.getValue();
-                        Log.i("conversation his", "" + map);
                         conversation.mapToObject(map);
-                        Log.i("aftermap", "" + map.values());
                         //conversation = singleSnapshot.getValue(Conversation.class);
                         if(conversation.cId != null) {
                             conversations.add(conversation);
+                            StringBuilder membersToStringBuilder = new StringBuilder();
+                            for(String s : conversation.getMembers()) {
+                                if(membersToStringBuilder.length() == 0) {
+                                    membersToStringBuilder.append(s);
+                                }
+                                else {
+                                    membersToStringBuilder.append(", " + s);
+                                }
+                            }
                             String name = conversation.getMembers().size() == 2 ?
-                                    MainActivity.currentUser.getUsername().equals(conversation.members.get(0)) ? conversation.members.get(1) : conversation.members.get(0) :
-                                    "Group chat: " + conversation.getTitle();                            conversationsItem.add(new ConversationItem(R.drawable.avt, conversation.getcId(), name,
+                                    (MainActivity.currentUser.getUsername().equals(conversation.members.get(0)) ? conversation.members.get(1) : conversation.members.get(0)) :
+                                    membersToStringBuilder.toString();
+                            conversationsItem.add(new ConversationItem(R.drawable.avt, conversation.getcId(), name,
                                     (conversation.getLastMessage().getName()+ ": "+ conversation.getLastMessage().getMessage())
                                     ,conversation.getLastMessage().getTimestamp()+""));
                             adapter.notifyItemInserted(conversationsItem.size() -1);
                         }
                     }
+                    updateRecyclerView();
                 }
 
                 @Override
@@ -111,17 +119,16 @@ public class HistoryFragment extends Fragment {
 
     }
 
+
     public static void updateRecyclerView() { //called when close conversation activity
         DatabaseReference databaseReference = MainActivity.database.child("conversations");
         databaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.i("child add", "...");
                 Conversation conversation = new Conversation();
                 Map<String,Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
                 conversation.mapToObject(map);
-                /*if(conversations.contains(conversation)) {
-                    return;
-                }*/
                 for(int i = 0; i < conversationsItem.size(); i++) {
                     if(conversation.getcId().equals(conversationsItem.get(i).getcId())) {
                         //if conversation is already in the list, return
@@ -144,10 +151,12 @@ public class HistoryFragment extends Fragment {
             }
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.i("child change", "...");
                 Conversation conversation = new Conversation();
-                conversation = dataSnapshot.getValue(Conversation.class);
+                Map<String,Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
+                conversation.mapToObject(map);
+                Log.i("child changed", "" + conversation.getcId());
                 for(int i = 0; i < conversations.size(); i ++) {
-
                     if (conversations.get(i).getcId().equals(conversation.getcId())) {
                         conversationsItem.get(i).setLastMsg(conversation.getLastMessage().getName() + ": " + conversation.getLastMessage().getMessage());
                         conversationsItem.get(i).setLastMsgTime(conversation.getLastMessage().getTimestamp() + "");

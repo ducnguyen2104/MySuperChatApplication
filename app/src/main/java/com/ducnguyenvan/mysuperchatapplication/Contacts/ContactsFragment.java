@@ -16,7 +16,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.ducnguyenvan.mysuperchatapplication.MainActivity;
-import com.ducnguyenvan.mysuperchatapplication.Model.ContactItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.ContactItem;
 import com.ducnguyenvan.mysuperchatapplication.R;
 import com.ducnguyenvan.mysuperchatapplication.databinding.FragmentContactsBinding;
 

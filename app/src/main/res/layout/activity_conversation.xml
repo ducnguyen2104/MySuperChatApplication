@@ -15,9 +15,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@{conversationViewModel.converrsationName}"
+            android:text="@={conversationViewModel.conversationName}"
             android:textColor="@android:color/white"
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:id="@+id/conversation_name"/>
     </Toolbar>
 
@@ -26,32 +26,32 @@
         android:layout_height="match_parent"
         android:id="@+id/conversation_rv"
         android:layout_below="@+id/conversation_toolbar"
-        android:layout_above="@+id/conversation_enter_text">
+        android:layout_above="@+id/conversation_edt">
     </android.support.v7.widget.RecyclerView>
 
-    <LinearLayout
-        android:background="@android:color/holo_blue_light"
-        android:id="@+id/conversation_enter_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal">
+
 
         <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:hint="Bấm để nhập tin nhắn"
             android:id="@+id/conversation_edt"
-            android:text="@={conversationViewModel.message}"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/conversation_btn_send"
+            android:hint="Bấm để nhập tin nhắn"
+            android:text="@={conversationViewModel.message}"
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
         <Button
             android:id="@+id/conversation_btn_send"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
             android:onClick="@{() -> conversationViewModel.onSendBtnClicked()}"
             android:text="➠"
-            android:textSize="24sp"/>
-    </LinearLayout>
+            android:textSize="24sp" />
+
 
 </RelativeLayout>
 </layout>

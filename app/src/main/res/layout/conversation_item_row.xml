@@ -7,7 +7,7 @@
             type="com.ducnguyenvan.mysuperchatapplication.History.ConversationItemViewModel"/>
         <variable
             name="conversation"
-            type="com.ducnguyenvan.mysuperchatapplication.Model.ConversationItem"/>
+            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.ConversationItem"/>
     </data>
 <RelativeLayout
     android:layout_width="match_parent"
@@ -15,8 +15,8 @@
     android:layout_margin="20px"
     android:onClick="@{() -> viewModel.onClick()}">
     <ImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:id="@+id/history_img"
         android:src="@drawable/avt"
         app:conversationimg="@{conversation.conversationName}"/>
@@ -29,9 +29,12 @@
         android:layout_marginLeft="20px"
         android:layout_marginTop="20px"
         android:layout_toEndOf="@+id/history_img"
+        android:layout_toStartOf="@+id/history_last_msg_time"
         android:text="@={conversation.conversationName}"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"/>
 
     <TextView
         android:id="@+id/history_last_msg"
@@ -42,7 +45,7 @@
         android:layout_marginLeft="20px"
         android:layout_toEndOf="@+id/history_img"
         android:text="@={conversation.lastMsg}"
-        android:textSize="24sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/history_last_msg_time"
@@ -53,7 +56,7 @@
         android:layout_marginRight="20px"
         android:layout_marginTop="20px"
         android:text="@={conversation.lastMsgTime}"
-        android:textSize="24sp" />
+        android:textSize="10sp" />
 
 </RelativeLayout>
 </layout>

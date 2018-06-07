@@ -12,9 +12,15 @@ import com.ducnguyenvan.mysuperchatapplication.Model.Conversation;
 import com.ducnguyenvan.mysuperchatapplication.Model.Message;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,32 +29,78 @@ public class ConversationViewModel extends ViewModel {
     public DatabaseReference messageRef;
     public DatabaseReference conversationRef;
     public String key;
-    public String converrsationName;
+    public String membersString; //mem1*mem2*..., null if conversation is not a group chat
+    public ObservableField<String> conversationName = new ObservableField<>();
     public String user1;
     public String user2;
     public boolean isSendSucceeded = false;
     public Context context;
     public int memNumber;
     public boolean isGroupChat;
+    public ArrayList<String> members = new ArrayList<>();
 
     public ConversationViewModel(Context context) {
         this.context = context;
+        key = ConversationActivity.currentCId;
+        membersString = ConversationActivity.membersString;
         messageRef = MainActivity.database.child("messages").child(ConversationActivity.currentCId);
         conversationRef = MainActivity.database.child("conversations").child(ConversationActivity.currentCId);
-        key = ConversationActivity.currentCId;
-        int dividerIndex = key.indexOf('*');
-        user1 = key.substring(0, dividerIndex);
-        user2 = key.substring(dividerIndex + 1, key.length());
-        int dividernumber = key.length() - key.replace("*", "").length(); //count number of '*' in string
-        memNumber = dividernumber + 1;
-        Log.i("mem number", "" + memNumber);
-        isGroupChat = memNumber > 1;
-        converrsationName = isGroupChat ? "Group chat" : user1.equals(MainActivity.currentUser.getUsername()) ? user2 : user1;
+        conversationRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                HashMap<String, Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
+                Conversation conversation = new Conversation();
+                if(map != null) { //conversation's already existed
+                    conversation.mapToObject(map);
+                    members = conversation.getMembers();
+                    isGroupChat = members.size() > 2;
+                    if (!isGroupChat) { //not a group chat
+                        /*int dividerIndex = key.indexOf('*');
+                        user1 = key.substring(0, dividerIndex);
+                        user2 = key.substring(dividerIndex + 1, key.length());*/
+                        user1 = members.get(0);
+                        user2 = members.get(1);
+                        memNumber = 2;
+                        conversationName.set(user1.equals(MainActivity.currentUser.getUsername()) ? user2 : user1);
+                    } else { //group chat
+                        memNumber = members.size();
+                        conversationName.set(conversation.getTitle().replace(",", ", "));
+                        //conversationName.set(map.get("title")+ "");
+                    }
+                    if (membersString.length() == 0) {
+                        membersString = map.get("title").toString().replace(",", "*");
+                    }
+                }
+                else {
+                    isGroupChat = membersString.length() > 0;
+                    if(!isGroupChat) { //not a group chat
+                        int dividerIndex = key.indexOf('*');
+                        user1 = key.substring(0, dividerIndex);
+                        user2 = key.substring(dividerIndex + 1, key.length());
+                        memNumber = 2;
+                        conversationName.set(user1.equals(MainActivity.currentUser.getUsername()) ? user2 : user1);
+                    }
+                    else  { //group chat
+                        memNumber = membersString.length() - membersString.replace("*","").length() + 1;
+                        conversationName.set(membersString.replace("*", ", "));
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     public void onSendBtnClicked() {
         if (message.get().length() != 0) {
-            final Message newMsg = new Message(message.get(), MainActivity.currentUser.getUsername(), 0);
+            Date date = new Date(System.currentTimeMillis());
+            DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            String timestamp = sdf.format(date);
+            final Message newMsg = new Message(message.get(), MainActivity.currentUser.getUsername(), timestamp);
             if (ConversationActivity.isConversationCreated) { //conversation's already created, update message and conversation node
                 String key = messageRef.push().getKey();
                 messageRef.child(key).setValue(newMsg)
@@ -83,7 +135,7 @@ public class ConversationViewModel extends ViewModel {
             } else { //create new conversation
                 key = ConversationActivity.currentCId;
                 if(!isGroupChat) { //conversation is not a group chat
-                    String anotherUser = converrsationName;
+                    String anotherUser = conversationName.get();
                     ArrayList<String> users = new ArrayList<>();
                     users.add(user1);
                     users.add(user2);
@@ -114,24 +166,24 @@ public class ConversationViewModel extends ViewModel {
                 }
                 else { //group chat
                     ArrayList<Integer> indexes = new ArrayList<>();
-                    indexes.add(key.indexOf('*'));
+                    indexes.add(membersString.indexOf('*'));
                     for (int i = 0; i < memNumber - 2; i++) { //number of indexes = number of members - 1
-                        indexes.add(key.indexOf('*', (indexes.get(i) + 1)));
+                        indexes.add(membersString.indexOf('*', (indexes.get(i) + 1)));
                     }
                     ArrayList<String> users = new ArrayList<>();
                     Log.i("indexes size", "" + indexes.size());
-                    users.add(key.substring(0, indexes.get(0)));
+                    users.add(membersString.substring(0, indexes.get(0)));
                     for(int i = 0; i < indexes.size(); i++) {
                         if(i + 1 < indexes.size()) {
-                            users.add(key.substring(indexes.get(i) + 1, indexes.get(i + 1)));
+                            users.add(membersString.substring(indexes.get(i) + 1, indexes.get(i + 1)));
 
                         }
                         else {
-                            users.add(key.substring(indexes.get(i) + 1, key.length()));
+                            users.add(membersString.substring(indexes.get(i) + 1, membersString.length()));
                         }
                     }
                     //now have users and indexes
-                    Conversation conversation = new Conversation(key, newMsg, key.replace('*',','), users);
+                    Conversation conversation = new Conversation(key, newMsg, membersString.replace("*",", "), users);
                     Log.i("conv created",  conversation.getcId() + " " + conversation.getTitle());
                     Map<String, Object> conversationValues = conversation.toMap();
                     //update root/conversations and root/messages node

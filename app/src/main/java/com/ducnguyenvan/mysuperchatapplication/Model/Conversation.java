@@ -1,5 +1,7 @@
 package com.ducnguyenvan.mysuperchatapplication.Model;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,8 +69,7 @@ public class Conversation {
     }
 
     public void mapToObject (Map<String,Object> map) {
-        ArrayList<Object> values = new ArrayList<>(map.values());
-        //this.cId = values.get(3).toString();
+        Log.i("map to obj", "" + map.get("cId"));
         this.cId = map.get("cId").toString();
         this.lastMessage.mapToObject((HashMap<String, Object>) map.get("lastMessage"));
         this.title = map.get("title").toString();
