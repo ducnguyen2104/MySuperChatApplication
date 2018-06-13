@@ -1,5 +1,6 @@
 package com.ducnguyenvan.mysuperchatapplication;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -7,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -76,11 +78,32 @@ public class MainActivity extends AppCompatActivity {
 //        tabLayout.setupWithViewPager(mViewPager);
     }
 
-    @Override
+    /*@Override
     public void onBackPressed() {
         currentUser = null;
         finish();
         super.onBackPressed();
+    }*/
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.MyDialogTheme);
+
+        builder.setTitle("Thoát");
+        builder.setMessage("Đăng xuất và thoát?");
+        builder.setPositiveButton("Thoát", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                currentUser = null;
+                finish();
+                MainActivity.super.onBackPressed();
+            }
+        });
+        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+               dialog.cancel();
+            }
+        });
+        builder.show();
     }
 
     public class SectionsPagerAdapter extends FragmentStatePagerAdapter {

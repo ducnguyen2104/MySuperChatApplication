@@ -1,8 +1,13 @@
 package com.ducnguyenvan.mysuperchatapplication.Model.Items;
 
-public abstract class BaseMessageItem implements Item{
+import android.databinding.BaseObservable;
+
+public abstract class BaseMessageItem extends BaseObservable implements Item  {
+
     public String username;
     public String timestamp;
+    public long realtimestamp;
+    public boolean isFirst;
 
     public String getUsername() {
         return username;
@@ -12,6 +17,13 @@ public abstract class BaseMessageItem implements Item{
         this.username = username;
     }
 
+    public long getRealtimestamp() {
+        return realtimestamp;
+    }
+
+    public void setRealtimestamp(long realtimestamp) {
+        this.realtimestamp = realtimestamp;
+    }
 
     public String getTimestamp() {
         return timestamp;
@@ -21,11 +33,20 @@ public abstract class BaseMessageItem implements Item{
         this.timestamp = timestamp;
     }
 
+    public boolean getIsFirst() {
+        return isFirst;
+    }
+
+    public void setIsFirst(boolean first) {
+        isFirst = first;
+    }
+
     @Override
     public boolean equalsContent(Object other) {
         return other instanceof BaseMessageItem &&
                 ((BaseMessageItem) other).username.equals(this.username) &&
-                ((BaseMessageItem) other).timestamp.equals(this.timestamp);
+                ((BaseMessageItem) other).timestamp.equals(this.timestamp) &&
+                ((BaseMessageItem) other).realtimestamp == this.realtimestamp;
     }
 
     @Override

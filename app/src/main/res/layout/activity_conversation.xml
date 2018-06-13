@@ -1,57 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <data>
+
         <variable
             name="conversationViewModel"
-            type="com.ducnguyenvan.mysuperchatapplication.Conversation.ConversationViewModel"/>
+            type="com.ducnguyenvan.mysuperchatapplication.Conversation.ConversationViewModel" />
     </data>
-<RelativeLayout
-    android:layout_width="match_parent" android:layout_height="match_parent">
-    <Toolbar
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/conversation_toolbar"
-        android:background="@color/colorPrimary">
-        <TextView
+        android:layout_height="match_parent">
+
+        <Toolbar
+            android:id="@+id/conversation_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            android:contentInsetStart="0dp"
+            android:contentInsetLeft="0dp">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:text="↩"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:minHeight="30dp"
+                android:minWidth="40dp"
+                android:onClick="@{() -> conversationViewModel.onBackBtnClicked()}"/>
+            <TextView
+                android:id="@+id/conversation_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@={conversationViewModel.conversationName}"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:layout_marginLeft="20px"/>
+        </Toolbar>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/conversation_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@={conversationViewModel.conversationName}"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:id="@+id/conversation_name"/>
-    </Toolbar>
-
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/conversation_rv"
-        android:layout_below="@+id/conversation_toolbar"
-        android:layout_above="@+id/conversation_edt">
-    </android.support.v7.widget.RecyclerView>
-
-
+            android:layout_above="@+id/emoji_grid"
+            android:layout_below="@+id/conversation_toolbar"></android.support.v7.widget.RecyclerView>
 
         <EditText
             android:id="@+id/conversation_edt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_toLeftOf="@+id/conversation_btn_send"
-            android:hint="Bấm để nhập tin nhắn"
-            android:text="@={conversationViewModel.message}"
-            android:maxLines="1"
-            android:ellipsize="end"/>
+            android:layout_toStartOf="@+id/send_img_btn"
+            android:ellipsize="end"
+            android:hint="Bấm để nhập tin nhắn..."
+            android:maxLines="2"
+            android:text="@={conversationViewModel.message}" />
 
         <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:id="@+id/send_img_btn"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@+id/add_emoji_btn"
+            android:text="◪"
+            android:textSize="24sp"
+            android:minWidth="40dp" />
+
+        <Button
+            android:background="@android:color/transparent"
+            android:id="@+id/add_emoji_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@+id/conversation_btn_send"
+            android:text="☺"
+            android:textSize="24sp"
+            android:minWidth="40dp"/>
+
+        <Button
+            android:background="@android:color/transparent"
             android:id="@+id/conversation_btn_send"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:onClick="@{() -> conversationViewModel.onSendBtnClicked()}"
-            android:text="➠"
-            android:textSize="24sp" />
+            android:text="➤"
+            android:textSize="24sp"
+            android:minWidth="40dp"/>
+        <GridView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:numColumns="7"
+            android:id="@+id/emoji_grid"
+            android:layout_above="@+id/conversation_edt"
+            android:visibility="gone"
+            android:background="@android:color/transparent">
 
+        </GridView>
 
-</RelativeLayout>
+    </RelativeLayout>
 </layout>

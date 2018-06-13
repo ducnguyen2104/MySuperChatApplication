@@ -1,18 +1,39 @@
 package com.ducnguyenvan.mysuperchatapplication.Model.Items;
 
-public class MyImageMessageItem extends BaseMessageItem {
-    public int message; //img
+import android.databinding.Bindable;
+import android.view.View;
 
-    public MyImageMessageItem(String username, int message, String timestamp) {
+import com.ducnguyenvan.mysuperchatapplication.BR;
+
+public class MyImageMessageItem extends BaseMessageItem {
+    @Bindable
+    public String imgName; //img
+
+    @Bindable
+    public int statusTextViewVisibility; //visibility of the text view "Đang gửi..."
+
+    @Bindable
+    public int retryButtonVisibility; //visibility of retry button
+
+    @Bindable
+    public String status;
+
+    public MyImageMessageItem(String username, String imgName, String timestamp, long realtimestamp, boolean isSending) {
         this.username = username;
-        this.message = message;
+        this.imgName = imgName;
         this.timestamp = timestamp;
+        this.realtimestamp = realtimestamp;
+        this.statusTextViewVisibility = (isSending? (View.VISIBLE) : View.GONE);
+        this.retryButtonVisibility = View.INVISIBLE;
+        this.status = "Đang gửi...";
+
     }
 
     public MyImageMessageItem() {
         this.username = null;
-        this.message = -1;
+        this.imgName = null;
         this.timestamp = null;
+        this.statusTextViewVisibility = (View.VISIBLE);
     }
 
     public String getUsername() {
@@ -23,12 +44,13 @@ public class MyImageMessageItem extends BaseMessageItem {
         this.username = username;
     }
 
-    public int getMessage() {
-        return message;
+    public String getImgName() {
+        return imgName;
     }
 
-    public void setMessage(int message) {
-        this.message = message;
+    public void setImgName(String imgName) {
+        this.imgName = imgName;
+        notifyPropertyChanged(BR.imgName);
     }
 
     public String getTimestamp() {
@@ -37,6 +59,33 @@ public class MyImageMessageItem extends BaseMessageItem {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getStatusTextViewVisibility() {
+        return this.statusTextViewVisibility;
+    }
+
+    public void setStatusTextViewVisibility(int statusTextViewVisibility) {
+        this.statusTextViewVisibility = (statusTextViewVisibility);
+        notifyPropertyChanged(BR.statusTextViewVisibility);
+    }
+
+    public int getRetryButtonVisibility() {
+        return retryButtonVisibility;
+    }
+
+    public void setRetryButtonVisibility(int retryButtonVisibility) {
+        this.retryButtonVisibility = retryButtonVisibility;
+        notifyPropertyChanged(BR.retryButtonVisibility);
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+        notifyPropertyChanged(BR.status);
     }
 }
 

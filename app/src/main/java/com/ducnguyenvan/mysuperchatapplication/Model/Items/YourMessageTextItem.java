@@ -1,14 +1,19 @@
 package com.ducnguyenvan.mysuperchatapplication.Model.Items;
 
-public class MessageTextItem extends BaseMessageItem {
+import android.view.View;
+
+public class YourMessageTextItem extends BaseMessageItem {
     public int img;
     public String message;
+    public int visibility;
 
-    public MessageTextItem() {
+    public YourMessageTextItem() {
         this.img = 0;
         this.username = null;
         this.message = null;
         this.timestamp = null;
+        this.realtimestamp = 0;
+        this.visibility = View.VISIBLE;
     }
 
     public String getTimestamp() {
@@ -19,12 +24,14 @@ public class MessageTextItem extends BaseMessageItem {
         this.timestamp = timestamp;
     }
 
-    public MessageTextItem(int img, String username, String message, String timestamp) {
+    public YourMessageTextItem(int img, String username, String message, String timestamp, long realtimestamp, boolean isFirst) {
         this.img = img;
         this.username = username;
         this.message = message;
         this.timestamp = timestamp;
-
+        this.realtimestamp = realtimestamp;
+        this.isFirst = isFirst;
+        this.visibility = this.isFirst ? View.VISIBLE : View.INVISIBLE;
     }
 
     public int getImg() {

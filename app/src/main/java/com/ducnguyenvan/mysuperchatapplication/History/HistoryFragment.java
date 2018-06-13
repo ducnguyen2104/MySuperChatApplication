@@ -76,7 +76,10 @@ public class HistoryFragment extends Fragment {
         adapter = new HistoryRvAdapter(conversationsItem,getContext());
         recyclerView.setAdapter(adapter);
         DatabaseReference databaseReference = MainActivity.database.child("conversations");
-
+        if(conversationIds.size() == 0) { //new user, no history
+            updateRecyclerView();
+            return;
+        }
         for(int i = 0; i < conversationIds.size(); i++) {
             Query conversationQuery = databaseReference.orderByChild("cId").equalTo(conversationIds.get(i));
             conversationQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -85,6 +88,7 @@ public class HistoryFragment extends Fragment {
                     for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
                         Conversation conversation = new Conversation();
                         Map<String,Object> map = (HashMap<String,Object>) singleSnapshot.getValue();
+                        Log.i("map", "" + map);
                         conversation.mapToObject(map);
                         //conversation = singleSnapshot.getValue(Conversation.class);
                         if(conversation.cId != null) {
@@ -101,9 +105,12 @@ public class HistoryFragment extends Fragment {
                             String name = conversation.getMembers().size() == 2 ?
                                     (MainActivity.currentUser.getUsername().equals(conversation.members.get(0)) ? conversation.members.get(1) : conversation.members.get(0)) :
                                     membersToStringBuilder.toString();
+                            String lastMsg = conversation.getLastMessage().getMessage().contains("/-img:") ? conversation.getLastMessage().getName() + " đã gửi một ảnh"
+                                    : (conversation.getLastMessage().getName()+ ": "+ conversation.getLastMessage().getMessage());
                             conversationsItem.add(new ConversationItem(R.drawable.avt, conversation.getcId(), name,
-                                    (conversation.getLastMessage().getName()+ ": "+ conversation.getLastMessage().getMessage())
+                                    lastMsg
                                     ,conversation.getLastMessage().getTimestamp()+""));
+                            Log.i("Add", ""+conversation.getcId());
                             adapter.notifyItemInserted(conversationsItem.size() -1);
                         }
                     }
@@ -125,10 +132,14 @@ public class HistoryFragment extends Fragment {
         databaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.i("child add", "...");
+                Log.i("history fragment", "child added");
                 Conversation conversation = new Conversation();
                 Map<String,Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
                 conversation.mapToObject(map);
+                if(conversation.getcId() == null) {
+                    return;
+
+                }
                 for(int i = 0; i < conversationsItem.size(); i++) {
                     if(conversation.getcId().equals(conversationsItem.get(i).getcId())) {
                         //if conversation is already in the list, return
@@ -141,8 +152,10 @@ public class HistoryFragment extends Fragment {
                         String name = conversation.getMembers().size() == 2 ?
                                 MainActivity.currentUser.getUsername().equals(conversation.members.get(0)) ? conversation.members.get(1) : conversation.members.get(0) :
                                 "Group chat: " + conversation.getTitle();
+                        String lastMsg = conversation.getLastMessage().getMessage().contains("/-img:") ? conversation.getLastMessage().getName() + " đã gửi một ảnh"
+                                : (conversation.getLastMessage().getName()+ ": "+ conversation.getLastMessage().getMessage());
                         conversationsItem.add(new ConversationItem(R.drawable.avt, conversation.getcId(), name,
-                                (conversation.getLastMessage().getName()+ ": "+ conversation.getLastMessage().getMessage())
+                                lastMsg
                                 ,conversation.getLastMessage().getTimestamp()+""));
                         adapter.notifyItemInserted(conversationsItem.size() - 1);
                     }
@@ -151,14 +164,14 @@ public class HistoryFragment extends Fragment {
             }
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.i("child change", "...");
                 Conversation conversation = new Conversation();
                 Map<String,Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
                 conversation.mapToObject(map);
-                Log.i("child changed", "" + conversation.getcId());
                 for(int i = 0; i < conversations.size(); i ++) {
                     if (conversations.get(i).getcId().equals(conversation.getcId())) {
-                        conversationsItem.get(i).setLastMsg(conversation.getLastMessage().getName() + ": " + conversation.getLastMessage().getMessage());
+                        String lastMsg = conversation.getLastMessage().getMessage().contains("/-img:") ? conversation.getLastMessage().getName() + " đã gửi một ảnh"
+                                : (conversation.getLastMessage().getName()+ ": "+ conversation.getLastMessage().getMessage());
+                        conversationsItem.get(i).setLastMsg(lastMsg);
                         conversationsItem.get(i).setLastMsgTime(conversation.getLastMessage().getTimestamp() + "");
                         adapter.notifyItemChanged(i);
                     }

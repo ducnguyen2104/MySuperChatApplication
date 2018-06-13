@@ -34,7 +34,8 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:maxLines="1"
-        android:ellipsize="end"/>
+        android:ellipsize="end"
+        android:layout_marginRight="50dp"/>
 
     <TextView
         android:id="@+id/history_last_msg"
@@ -44,6 +45,8 @@
         android:layout_marginBottom="20px"
         android:layout_marginLeft="20px"
         android:layout_toEndOf="@+id/history_img"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:text="@={conversation.lastMsg}"
         android:textSize="18sp" />
 

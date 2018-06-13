@@ -31,6 +31,7 @@ public class AddContactActivity extends AppCompatActivity {
 
     EditText finđEdt;
     Button findBtn;
+    Button backBtn;
     TextView resultTxt;
     ArrayList<String> contacts = MainActivity.currentUser.getContacts();
 
@@ -55,6 +56,13 @@ public class AddContactActivity extends AppCompatActivity {
                     Log.i("result", resultTxt.getText().toString());
                     addToContact();
                 }
+            }
+        });
+        backBtn = findViewById(R.id.add_contact_back_btn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
 
@@ -102,8 +110,8 @@ public class AddContactActivity extends AppCompatActivity {
         contacts.add(resultTxt.getText().toString());
         final int contactsSize = contacts.size();
         MainActivity.currentUser.setContacts(contacts);
-        Log.i("result", resultTxt.getText().toString());
-        MainActivity.database.child("users").child(MainActivity.currentUser.getUsername()).child("contacts").setValue(contacts)
+        String key = MainActivity.database.child("users").child(MainActivity.currentUser.getUsername()).child("contacts").push().getKey();
+        MainActivity.database.child("users").child(MainActivity.currentUser.getUsername()).child("contacts").child(key).setValue(resultTxt.getText().toString())
         .addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

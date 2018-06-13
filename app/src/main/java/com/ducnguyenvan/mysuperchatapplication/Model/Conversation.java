@@ -70,6 +70,9 @@ public class Conversation {
 
     public void mapToObject (Map<String,Object> map) {
         Log.i("map to obj", "" + map.get("cId"));
+        if(map.get("cId") == null){
+            return;
+        }
         this.cId = map.get("cId").toString();
         this.lastMessage.mapToObject((HashMap<String, Object>) map.get("lastMessage"));
         this.title = map.get("title").toString();

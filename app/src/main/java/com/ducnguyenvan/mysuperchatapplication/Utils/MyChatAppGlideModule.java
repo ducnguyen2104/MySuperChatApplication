@@ -1,4 +1,4 @@
-package com.ducnguyenvan.mysuperchatapplication;
+package com.ducnguyenvan.mysuperchatapplication.Utils;
 
 import android.content.Context;
 

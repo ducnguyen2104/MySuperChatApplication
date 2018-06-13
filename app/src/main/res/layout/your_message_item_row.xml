@@ -4,28 +4,31 @@
     <data>
         <variable
             name="message"
-            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.MessageTextItem"/>
+            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.YourMessageTextItem"/>
     </data>
 <RelativeLayout
     android:layout_width="match_parent" android:layout_height="wrap_content">
 
     <ImageView
-        android:layout_margin="10px"
+        android:layout_margin="10dp"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_alignParentLeft="true"
         android:src="@drawable/avt"
         android:id="@+id/msg_avt"
+        android:visibility="@{message.visibility}"
         app:path="@{message.username}"/>
 
     <TextView
-        android:layout_margin="10px"
+        android:layout_marginRight="100dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/message_content"
         android:text="@{message.message}"
-        android:padding="10px"
+        android:padding="10dp"
         android:layout_toEndOf="@+id/msg_avt"
-        android:background="@color/yourMsgColor"/>
+        android:background="@drawable/your_msg_round_corner"/>
 </RelativeLayout>
 </layout>

@@ -32,6 +32,11 @@ public class RegisterViewModel extends ViewModel {
 
     public void onRegisterButtonClicked() {
         if(isAllFieldFilled()) {
+            if(username.contains("" + '.') || username.contains("" + '#') || username.contains("" + '$')
+                    || username.contains("" + '[') || username.contains("" + ']') || username.contains("" + '*')) {
+                Toast.makeText(context,"Tên đăng nhập không được chứa các ký tự đặc biệt", Toast.LENGTH_LONG).show();
+                return;
+            }
             if(checkEqualPassword()) {
                 checkExistingAccountAndCreateUser();
             }
@@ -96,5 +101,8 @@ public class RegisterViewModel extends ViewModel {
 
             }
         });
+    }
+    public void onBackBtnClicked() {
+        ((Activity)context).finish();
     }
 }

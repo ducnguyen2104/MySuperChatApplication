@@ -11,19 +11,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <FrameLayout
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/message_layout"
+            android:background="@android:color/transparent"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="↺"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginLeft="100dp"
+            android:visibility="@{message.retryButtonVisibility}"/>
+
+        <LinearLayout
+            android:id="@+id/message_layout"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:padding="10px"
-            android:layout_margin="10px"
-            android:background="@color/myMsgColor">
+            android:padding="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/my_msg_round_corner"
+            android:orientation="vertical">
             <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:id="@+id/message_content_img"
+                android:src="@drawable/waaaht"
+                app:msgsource="@{message.imgName}"/>
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/message_content_img"
-                android:src="@{message.message}"
-                android:background="@color/myMsgColor"/>
-        </FrameLayout>
+                android:text="@{message.status}"
+                android:layout_gravity="right"
+                android:visibility="@{message.statusTextViewVisibility}"/>
+        </LinearLayout>
     </RelativeLayout>
 </layout>

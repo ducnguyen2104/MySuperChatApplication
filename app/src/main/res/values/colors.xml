@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="myMsgColor">#b3daff</color>
     <color name="yourMsgColor">#ffd1b3</color>
+    <color name="yourMsgBorderColor">#ff751a</color>
 </resources>

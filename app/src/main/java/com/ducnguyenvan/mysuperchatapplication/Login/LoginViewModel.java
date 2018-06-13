@@ -46,6 +46,11 @@ public class LoginViewModel extends ViewModel {
     }
 
     private void verifyUserAndLogin() {
+        if(username.contains("" + '.') || username.contains("" + '#') || username.contains("" + '$')
+                || username.contains("" + '[') || username.contains("" + ']') || username.contains("" + '*')) {
+            Toast.makeText(context,"Tên đăng nhập không được chứa các ký tự đặc biệt", Toast.LENGTH_LONG).show();
+            return;
+        }
         DatabaseReference databaseReference = database.child("users").child(username);
         /*Query userQuery = databaseReference.orderByChild("username").equalTo(username);
         userQuery.addListenerForSingleValueEvent(new ValueEventListener() {

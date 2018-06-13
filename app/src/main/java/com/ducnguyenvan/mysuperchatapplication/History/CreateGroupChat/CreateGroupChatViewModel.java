@@ -48,4 +48,8 @@ public class CreateGroupChatViewModel extends ViewModel {
         ((Activity)context).finish();
 
     }
+
+    public void onBackBtnClicked() {
+        ((Activity)context).finish();
+    }
 }

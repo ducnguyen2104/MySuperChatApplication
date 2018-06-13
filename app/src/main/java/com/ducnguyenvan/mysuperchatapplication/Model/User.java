@@ -11,6 +11,15 @@ public class User {
     public String phonenumber;
     public ArrayList<String> contacts;
     public ArrayList<String> conversations;
+    public long avttimestamp;
+
+    public long getAvttimestamp() {
+        return avttimestamp;
+    }
+
+    public void setAvttimestamp(long avttimestamp) {
+        this.avttimestamp = avttimestamp;
+    }
 
     public ArrayList<String> getContacts() {
         return contacts;
@@ -35,7 +44,7 @@ public class User {
         phonenumber = null;
         contacts = null;
         conversations = null;
-
+        avttimestamp = 0;
     }
 
     public String getFullname() {
@@ -78,15 +87,17 @@ public class User {
         this.phonenumber = phonenumber;
         this.contacts = new ArrayList<>();
         this.conversations = new ArrayList<>();
+        this.avttimestamp = avttimestamp;
     }
 
-    public User(String username, String password, String fullname, String phonenumber, ArrayList<String> contacts, ArrayList<String> conversations) {
+    public User(String username, String password, String fullname, String phonenumber, ArrayList<String> contacts, ArrayList<String> conversations, long avttimestamp) {
         this.username = username;
         this.password = password;
         this.fullname = fullname;
         this.phonenumber = phonenumber;
         this.contacts = contacts;
         this.conversations = conversations;
+        this.avttimestamp = avttimestamp;
     }
 
     public void mapToObject(Map<String, Object> map) {
@@ -98,5 +109,6 @@ public class User {
         this.contacts = (cont != null ? new ArrayList<>(cont.values()) : new ArrayList<String>());
         HashMap<String,String> conv = (HashMap<String,String>)map.get("conversations");
         this.conversations = (conv != null ? new ArrayList<>(conv.values()) : new ArrayList<String>());
+        this.avttimestamp = Long.parseLong(map.get("avttimestamp").toString());
     }
 }

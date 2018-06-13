@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -15,19 +16,42 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <Toolbar
+            android:id="@+id/conversation_toolbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="25dp"
-            android:text="Đăng ký tài khoản mới"
-            android:textSize="18sp" />
+            android:background="@color/colorPrimary"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            android:contentInsetStart="0dp"
+            android:contentInsetLeft="0dp">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:text="↩"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:minHeight="30dp"
+                android:minWidth="40dp"
+                android:onClick="@{() -> registerViewModel.onBackBtnClicked()}"/>
+            <TextView
+                android:id="@+id/conversation_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Đăng ký tài khoản mới"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:layout_marginLeft="20px"/>
+        </Toolbar>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="30dp"
             android:text="Tên đăng nhập:"
             android:textSize="18sp" />
 

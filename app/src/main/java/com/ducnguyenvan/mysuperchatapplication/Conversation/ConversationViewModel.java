@@ -1,5 +1,6 @@
 package com.ducnguyenvan.mysuperchatapplication.Conversation;
 
+import android.app.Activity;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.databinding.ObservableField;
@@ -25,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConversationViewModel extends ViewModel {
+    private static final int PICK_IMAGE_REQUEST = 1;
     public ObservableField<String> message = new ObservableField<>();
     public DatabaseReference messageRef;
     public DatabaseReference conversationRef;
@@ -97,10 +99,12 @@ public class ConversationViewModel extends ViewModel {
 
     public void onSendBtnClicked() {
         if (message.get().length() != 0) {
-            Date date = new Date(System.currentTimeMillis());
+            String emojiMsg = replaceToEmoji(message.get());
+            long realTimestamp = System.currentTimeMillis();
+            Date date = new Date(realTimestamp);
             DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             String timestamp = sdf.format(date);
-            final Message newMsg = new Message(message.get(), MainActivity.currentUser.getUsername(), timestamp);
+            final Message newMsg = new Message(emojiMsg, MainActivity.currentUser.getUsername(), timestamp,realTimestamp);
             if (ConversationActivity.isConversationCreated) { //conversation's already created, update message and conversation node
                 String key = messageRef.push().getKey();
                 messageRef.child(key).setValue(newMsg)
@@ -161,6 +165,7 @@ public class ConversationViewModel extends ViewModel {
                                 public void onSuccess(Void aVoid) {
                                     clearTextBox();
                                     ConversationActivity.initRecyclerView();
+                                    ConversationActivity.isConversationCreated = true;
                                 }
                             });
                 }
@@ -171,7 +176,6 @@ public class ConversationViewModel extends ViewModel {
                         indexes.add(membersString.indexOf('*', (indexes.get(i) + 1)));
                     }
                     ArrayList<String> users = new ArrayList<>();
-                    Log.i("indexes size", "" + indexes.size());
                     users.add(membersString.substring(0, indexes.get(0)));
                     for(int i = 0; i < indexes.size(); i++) {
                         if(i + 1 < indexes.size()) {
@@ -184,7 +188,7 @@ public class ConversationViewModel extends ViewModel {
                     }
                     //now have users and indexes
                     Conversation conversation = new Conversation(key, newMsg, membersString.replace("*",", "), users);
-                    Log.i("conv created",  conversation.getcId() + " " + conversation.getTitle());
+                    Log.i("new gr chat", conversation.getcId() + ", " + conversation.getTitle() + " ");
                     Map<String, Object> conversationValues = conversation.toMap();
                     //update root/conversations and root/messages node
                     Map<String, Object> childUdpate = new HashMap<>();
@@ -208,6 +212,7 @@ public class ConversationViewModel extends ViewModel {
                                 public void onSuccess(Void aVoid) {
                                     clearTextBox();
                                     ConversationActivity.initRecyclerView();
+                                    ConversationActivity.isConversationCreated = true;
                                 }
                             });
                 }
@@ -217,6 +222,48 @@ public class ConversationViewModel extends ViewModel {
 
     public void clearTextBox() {
         message.set("");
+    }
+
+    public String replaceToEmoji(String msg) {
+        String s = msg.replace(":poop:", " " + new String(Character.toChars(0x1F4A9)) + " ")
+                .replace(":ok:", " " + new String(Character.toChars(0x1F44C)) + " ")
+                .replace(":D", " " + new String(Character.toChars(0x1F601)) + " ")
+                .replace(":d", " " + new String(Character.toChars(0x1F601)) + " ")
+                .replace(":P", " " + new String(Character.toChars(0x1F61B)) + " ")
+                .replace(":p", " " + new String(Character.toChars(0x1F61B)) + " ")
+                .replace(";P", " " + new String(Character.toChars(0x1F61C)) + " ")
+                .replace(";p", " " + new String(Character.toChars(0x1F61C)) + " ")
+                .replace(":*", " " + new String(Character.toChars(0x1F618)) + " ")
+                .replace(":))", " " + new String(Character.toChars(0x1F604)) + " ")
+                .replace("XD", " " + new String(Character.toChars(0x1F606)) + " ")
+                .replace("xd", " " + new String(Character.toChars(0x1F606)) + " ")
+                .replace("xD", " " + new String(Character.toChars(0x1F606)) + " ")
+                .replace("Xd", " " + new String(Character.toChars(0x1F606)) + " ")
+                .replace("=))", " " + new String(Character.toChars(0x1F923)) + " ")
+                .replace(":'(", " " + new String(Character.toChars(0x1F622)) + " ")
+                .replace(":((", " " + new String(Character.toChars(0x1F62D)) + " ")
+                .replace(":|", " " + new String(Character.toChars(0x1F610)) + " ")
+                .replace(":o", " " + new String(Character.toChars(0x1F631)) + " ")
+                .replace(":O", " " + new String(Character.toChars(0x1F631)) + " ")
+                .replace("@@", " " + new String(Character.toChars(0x1F635)) + " ")
+                .replace(">:(", " " + new String(Character.toChars(0x1F621)) + " ")
+                .replace(":/", " " + new String(Character.toChars(0x1F615)) + " ")
+                .replace("(y)", " " + new String(Character.toChars(0x1F44D)) + " ")
+                .replace("(y)", " " + new String(Character.toChars(0x1F44D)) + " ")
+                .replace("<3", " " + new String(Character.toChars(0x1F493)) + " ")
+                .replace("<(\")", " " + new String(Character.toChars(0x1F427)) + " ")
+                .replace(":)", " " + new String(Character.toChars(0x1F60A)) + " ")
+                .replace(";)", " " + new String(Character.toChars(0x1F609)) + " ")
+                .replace(":(", " " + new String(Character.toChars(0x1F641)) + " ");
+        return s;
+    }
+
+    public void onBackBtnClicked() {
+        ((Activity)context).finish();
+    }
+
+    public void onSendImageBtnClicked() {
+
     }
 
 

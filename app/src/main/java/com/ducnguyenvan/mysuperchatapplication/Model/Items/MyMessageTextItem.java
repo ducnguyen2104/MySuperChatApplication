@@ -3,16 +3,18 @@ package com.ducnguyenvan.mysuperchatapplication.Model.Items;
 public class MyMessageTextItem extends BaseMessageItem {
     public String message;
 
-    public MyMessageTextItem(String username, String message, String timestamp) {
+    public MyMessageTextItem(String username, String message, String timestamp, long realtimestamp) {
         this.username = username;
         this.message = message;
         this.timestamp = timestamp;
+        this.realtimestamp = realtimestamp;
     }
 
     public MyMessageTextItem() {
         this.username = null;
         this.message = null;
         this.timestamp = null;
+        this.realtimestamp = 0;
     }
 
     public String getUsername() {

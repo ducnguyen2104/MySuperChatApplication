@@ -14,11 +14,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.ducnguyenvan.mysuperchatapplication.GlideApp;
+import com.bumptech.glide.signature.ObjectKey;
 import com.ducnguyenvan.mysuperchatapplication.MainActivity;
 import com.ducnguyenvan.mysuperchatapplication.R;
+import com.ducnguyenvan.mysuperchatapplication.Utils.GlideApp;
+import com.ducnguyenvan.mysuperchatapplication.Utils.ImagePicker;
 import com.ducnguyenvan.mysuperchatapplication.databinding.FragmentSettingBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -57,10 +58,11 @@ public class SettingFragment extends Fragment {
         img = (ImageView) rootView.findViewById(R.id.avt);
         GlideApp.with(getActivity())
                 .load(avtStorageReference)
+                .signature(new ObjectKey("" + MainActivity.currentUser.getAvttimestamp()))
                 .centerCrop()
                 .apply(RequestOptions.circleCropTransform())
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
+                //.diskCacheStrategy(DiskCacheStrategy.NONE)
+                //.skipMemoryCache(true)
                 .into(img);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,9 +82,9 @@ public class SettingFragment extends Fragment {
                 if (bitmap == null) {
                     break;
                 }
-                img.setImageBitmap(bitmap);
+                //img.setImageBitmap(bitmap);
                 FirebaseStorage storage = FirebaseStorage.getInstance();
-                StorageReference avtStorageReference = storage.getReference().child("avartar").child(MainActivity.currentUser.getUsername() + ".jpg");
+                final StorageReference avtStorageReference = storage.getReference().child("avartar").child(MainActivity.currentUser.getUsername() + ".jpg");
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 byte[] dataArr = baos.toByteArray();
@@ -91,12 +93,24 @@ public class SettingFragment extends Fragment {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                 Toast.makeText(getContext(), "Upload complete", Toast.LENGTH_LONG).show();
+                                long newAvtTimestamp = System.currentTimeMillis();
+                                MainActivity.database.child("users").child(MainActivity.currentUser.getUsername()).child("avttimestamp").setValue(newAvtTimestamp);
+                                MainActivity.currentUser.setAvttimestamp(newAvtTimestamp);
+                                GlideApp.with(getActivity())
+                                        .load(avtStorageReference)
+                                        .signature(new ObjectKey("" + MainActivity.currentUser.getAvttimestamp()))
+                                        .centerCrop()
+                                        .apply(RequestOptions.circleCropTransform())
+                                        //.diskCacheStrategy(DiskCacheStrategy.NONE)
+                                        //.skipMemoryCache(true)
+                                        .into(img);
+
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(getContext(), "Upload failed", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "Upload failed. Please try again", Toast.LENGTH_LONG).show();
                             }
                         });
                 break;
