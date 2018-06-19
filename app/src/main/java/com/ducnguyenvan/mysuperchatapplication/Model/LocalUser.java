@@ -1,6 +1,11 @@
 package com.ducnguyenvan.mysuperchatapplication.Model;
 
-import android.util.Log;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
+import android.support.annotation.NonNull;
+
+import com.ducnguyenvan.mysuperchatapplication.LocalDB.MyConverter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,12 +13,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class User {
+@Entity(tableName = "users")
+public class LocalUser {
+    @PrimaryKey
+    @NonNull
     public String username;
     public String password;
     public String fullname;
     public String phonenumber;
+    @TypeConverters(MyConverter.class)
     public ArrayList<String> contacts;
+    @TypeConverters(MyConverter.class)
     public ArrayList<String> conversations;
     public long avttimestamp;
 
@@ -39,16 +49,6 @@ public class User {
 
     public void setConversations(ArrayList<String> conversations) {
         this.conversations = conversations;
-    }
-
-    public User() {
-        username = "";
-        password = "";
-        fullname = "";
-        phonenumber = "";
-        contacts = new ArrayList<>();
-        conversations = new ArrayList<>();
-        avttimestamp = 0;
     }
 
     public String getFullname() {
@@ -83,28 +83,6 @@ public class User {
         this.password = password;
     }
 
-    public User(String username, String password, String fullname, String phonenumber) {
-
-        this.username = username;
-        this.password = password;
-        this.fullname = fullname;
-        this.phonenumber = phonenumber;
-        this.contacts = new ArrayList<>();
-        this.conversations = new ArrayList<>();
-        this.avttimestamp = avttimestamp;
-    }
-
-    public User(String username, String password, String fullname, String phonenumber,
-                ArrayList<String> contacts, ArrayList<String> conversations, long avttimestamp) {
-        this.username = username;
-        this.password = password;
-        this.fullname = fullname;
-        this.phonenumber = phonenumber;
-        this.contacts = contacts;
-        this.conversations = conversations;
-        this.avttimestamp = avttimestamp;
-    }
-
     public void mapToObject(Map<String, Object> map) {
         this.username = map.get("username").toString();
         this.password = map.get("password").toString();
@@ -120,7 +98,6 @@ public class User {
     @Override
     public boolean equals(Object obj) {
         User other = (User)obj;
-        Log.i("this", "" + this.toString()+ ", other: " + other.toString());
         return (this.username != null && this.password != null
                 && this.fullname != null && this.phonenumber != null
                 && this.contacts != null && this.conversations != null)
@@ -150,20 +127,12 @@ public class User {
         return a.equals(b);
     }
 
-    public LocalUser toLocalUser() {
-        LocalUser localUser = new LocalUser();
-        localUser.username = this.username;
-        localUser.password = this.password;
-        localUser.fullname = this.fullname;
-        localUser.avttimestamp = this.avttimestamp;
-        localUser.contacts = this.contacts;
-        localUser.conversations = this.conversations;
-        localUser.phonenumber = this.phonenumber;
-        return localUser;
+    public User toUser() {
+        return new User(this.username,this.password,this.fullname,this.phonenumber,this.contacts,this.conversations,this.avttimestamp);
     }
 
     @Override
     public String toString() {
-        return ("user: [" + this.username + ", " + this.password + ", " + this.fullname + ", " + this.phonenumber + ", " + this.contacts + ", " + this.conversations + ", " + this.avttimestamp + "]");
+        return ("Local user: [" + this.username + ", " + this.password + ", " + this.fullname + ", " + this.phonenumber + ", " + this.contacts + ", " + this.conversations + ", " + this.avttimestamp + "]");
     }
 }

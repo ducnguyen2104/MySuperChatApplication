@@ -8,8 +8,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.ducnguyenvan.mysuperchatapplication.History.HistoryFragment;
 import com.ducnguyenvan.mysuperchatapplication.MainActivity;
 import com.ducnguyenvan.mysuperchatapplication.Model.Conversation;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.ConversationItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Message;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,6 +26,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class ConversationViewModel extends ViewModel {
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -104,14 +112,107 @@ public class ConversationViewModel extends ViewModel {
             Date date = new Date(realTimestamp);
             DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             String timestamp = sdf.format(date);
-            final Message newMsg = new Message(emojiMsg, MainActivity.currentUser.getUsername(), timestamp,realTimestamp);
-            if (ConversationActivity.isConversationCreated) { //conversation's already created, update message and conversation node
+            final Message newMsg = new Message(emojiMsg, MainActivity.currentUser.getUsername(), timestamp,realTimestamp,key);
+            //conversation's already created, update message and conversation node
+            if (ConversationActivity.isConversationCreated) {
+                //update local
+                Single<Message> single = Single.just(newMsg);
+                single.subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                        .subscribe(new SingleObserver<Message>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(Message message) {
+                                //update local conversation
+                                MainActivity.localDatabase.localDBDao().updateLastMsg(ConversationActivity.currentCId,message.message,message.name,message.realtimestamp,message.timestamp);
+                                for (int i = 0; i < HistoryFragment.conversationsItem.size(); i++) {
+                                    ConversationItem single = HistoryFragment.conversationsItem.get(i);
+                                    if(single.getcId().equals(ConversationActivity.currentCId)) {
+                                        single.setLastMsg(message.getName() + ": " + message.getMessage());
+                                        single.setLastMsgTime(message.getTimestamp());
+                                        Single.just(i).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<Integer>() {
+                                            @Override
+                                            public void onSubscribe(Disposable d) {
+
+                                            }
+
+                                            @Override
+                                            public void onSuccess(Integer integer) {
+                                                //HistoryFragment.adapter.notifyItemChanged(integer.intValue());
+                                                HistoryFragment.adapter.notifyDataSetChanged();
+                                                for (ConversationItem single: HistoryFragment.conversationsItem) {
+                                                    Log.i("convAct", "conitems " + single.getcId());
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onError(Throwable e) {
+
+                                            }
+                                        });
+                                        break;
+                                    }
+                                }
+
+                                /*Single<ArrayList<ConversationItem>> arrayListSingle = Single.just(HistoryFragment.conversationsItem);
+                                arrayListSingle.observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new SingleObserver<ArrayList<ConversationItem>>() {
+                                            @Override
+                                            public void onSubscribe(Disposable d) {
+
+                                            }
+
+                                            @Override
+                                            public void onSuccess(ArrayList<ConversationItem> conversationItems) {
+                                                HistoryFragment.adapter.updateList(conversationItems);
+                                            }
+
+                                            @Override
+                                            public void onError(Throwable e) {
+
+                                            }
+                                        });*/
+                                //update local message
+                                MainActivity.localDatabase.localDBDao().insertMessages(message.toLocalMessage());
+                                //update UI
+                                Single<ArrayList<ConversationItem>> newSingle = Single.just(HistoryFragment.conversationsItem);
+                                newSingle.observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<ArrayList<ConversationItem>>() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
+
+                                    }
+
+                                    @Override
+                                    public void onSuccess(ArrayList<ConversationItem> conversationItems) {
+                                        HistoryFragment.adapter.updateList(conversationItems);
+                                        clearTextBox();
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+                        });
+                //update on firebase
                 String key = messageRef.push().getKey();
                 messageRef.child(key).setValue(newMsg)
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 isSendSucceeded = false;
+                                Log.i("convAct", "send failed" + newMsg.getMessage());
+                                return;
                             }
                         })
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -122,15 +223,13 @@ public class ConversationViewModel extends ViewModel {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
                                                 isSendSucceeded = false;
-                                                Toast.makeText(context, "Gửi thất bại, vui lòng thử lại", Toast.LENGTH_LONG).show();
-                                                return;
                                             }
                                         })
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 isSendSucceeded = true;
-                                                clearTextBox();
+
                                             }
                                         });
                             }
@@ -143,8 +242,59 @@ public class ConversationViewModel extends ViewModel {
                     ArrayList<String> users = new ArrayList<>();
                     users.add(user1);
                     users.add(user2);
-                    Conversation conversation = new Conversation(key, newMsg, user1 + " and " + user2, users);
+                    final Conversation conversation = new Conversation(key, newMsg, user1 + " and " + user2, users);
+                    //update local
+                    Single<Conversation> single = Single.just(conversation);
+                    single.subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.io())
+                            .subscribe(new SingleObserver<Conversation>() {
+                                @Override
+                                public void onSubscribe(Disposable d) {
+
+                                }
+
+                                @Override
+                                public void onSuccess(Conversation conversation1) {
+                                    //create new conversation in local DB
+                                    MainActivity.localDatabase.localDBDao().insertConversations(conversation1.toLocalConversation());
+                                    //update current user's conversation list
+                                    MainActivity.currentUser.conversations.add(conversation1.getcId());
+                                    MainActivity.localDatabase.localDBDao().updateUsers(MainActivity.currentUser.toLocalUser());
+                                    //update UI
+                                    HistoryFragment.conversationsItem.add(conversation.makeConversationItem());
+                                    //HistoryFragment.adapter.updateList(HistoryFragment.conversationsItem);
+                                    Single<ArrayList<ConversationItem>> newSingle = Single.just(HistoryFragment.conversationsItem);
+                                    newSingle.observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<ArrayList<ConversationItem>>() {
+                                        @Override
+                                        public void onSubscribe(Disposable d) {
+
+                                        }
+
+                                        @Override
+                                        public void onSuccess(ArrayList<ConversationItem> conversationItems) {
+                                            HistoryFragment.adapter.updateList(conversationItems);
+                                            ConversationActivity.initRecyclerView();
+                                            ConversationActivity.isConversationCreated = true;
+                                            clearTextBox();
+
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+
+                                }
+                            });
+
+                    //Update on firebase
                     Map<String, Object> conversationValues = conversation.toMap();
+                    Log.i("new conv VM", "" + conversationValues);
                     Map<String, Object> childUdpate = new HashMap<>();
                     childUdpate.put("conversations/" + key, conversationValues);
                     String subkey = MainActivity.database.child("messages").child(key).push().getKey();
@@ -163,9 +313,7 @@ public class ConversationViewModel extends ViewModel {
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    clearTextBox();
-                                    ConversationActivity.initRecyclerView();
-                                    ConversationActivity.isConversationCreated = true;
+
                                 }
                             });
                 }
@@ -188,8 +336,59 @@ public class ConversationViewModel extends ViewModel {
                     }
                     //now have users and indexes
                     Conversation conversation = new Conversation(key, newMsg, membersString.replace("*",", "), users);
+
+                    //update local
+                    Single<Conversation> single = Single.just(conversation);
+                    single.subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.io())
+                            .subscribe(new SingleObserver<Conversation>() {
+                                @Override
+                                public void onSubscribe(Disposable d) {
+
+                                }
+
+                                @Override
+                                public void onSuccess(Conversation conversation1) {
+                                    //create new conversation in local DB
+                                    MainActivity.localDatabase.localDBDao().insertConversations(conversation1.toLocalConversation());
+                                    //update current user's conversation list
+                                    MainActivity.currentUser.conversations.add(conversation1.getcId());
+                                    MainActivity.localDatabase.localDBDao().updateUsers(MainActivity.currentUser.toLocalUser());
+                                    //update UI
+                                    HistoryFragment.conversationsItem.add(conversation.makeConversationItem());
+                                    //HistoryFragment.adapter.updateList(HistoryFragment.conversationsItem);
+                                    Single<ArrayList<ConversationItem>> newSingle = Single.just(HistoryFragment.conversationsItem);
+                                    newSingle.observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<ArrayList<ConversationItem>>() {
+                                        @Override
+                                        public void onSubscribe(Disposable d) {
+
+                                        }
+
+                                        @Override
+                                        public void onSuccess(ArrayList<ConversationItem> conversationItems) {
+                                            HistoryFragment.adapter.updateList(conversationItems);
+                                            ConversationActivity.initRecyclerView();
+                                            ConversationActivity.isConversationCreated = true;
+                                            clearTextBox();
+
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+
+                                }
+                            });
+                    //update firebase
                     Log.i("new gr chat", conversation.getcId() + ", " + conversation.getTitle() + " ");
                     Map<String, Object> conversationValues = conversation.toMap();
+                    Log.i("new conv VM", "" + conversationValues);
                     //update root/conversations and root/messages node
                     Map<String, Object> childUdpate = new HashMap<>();
                     childUdpate.put("conversations/" + key, conversationValues);
@@ -210,7 +409,6 @@ public class ConversationViewModel extends ViewModel {
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    clearTextBox();
                                     ConversationActivity.initRecyclerView();
                                     ConversationActivity.isConversationCreated = true;
                                 }

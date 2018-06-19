@@ -3,17 +3,19 @@ package com.ducnguyenvan.mysuperchatapplication.Conversation;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.BaseItemAdapter;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.BaseItemViewHolder;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.BaseMessageItem;
-import com.ducnguyenvan.mysuperchatapplication.Model.Items.YourImageMessageItem;
-import com.ducnguyenvan.mysuperchatapplication.Model.Items.YourMessageTextItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyImageMessageItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyMessageTextItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.YourImageMessageItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.YourMessageTextItem;
 import com.ducnguyenvan.mysuperchatapplication.R;
+import com.ducnguyenvan.mysuperchatapplication.Utils.MessageItemListDiffCallback;
 import com.ducnguyenvan.mysuperchatapplication.databinding.MyImgMessageItemRowBinding;
 import com.ducnguyenvan.mysuperchatapplication.databinding.MyMessageItemRowBinding;
 import com.ducnguyenvan.mysuperchatapplication.databinding.YourImgMessageItemRowBinding;
@@ -149,5 +151,11 @@ public class MessageRvAdapter extends BaseItemAdapter {
             this.yourBinding.setMessage(message);
             this.yourBinding.executePendingBindings();
         }
+    }
+
+    public void updateList(ArrayList<BaseMessageItem> newList) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MessageItemListDiffCallback(this.messages, newList));
+        diffResult.dispatchUpdatesTo(this);
+        this.messages = newList;
     }
 }

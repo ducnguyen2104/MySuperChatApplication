@@ -3,12 +3,15 @@ package com.ducnguyenvan.mysuperchatapplication.History;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.ConversationItem;
 import com.ducnguyenvan.mysuperchatapplication.R;
+import com.ducnguyenvan.mysuperchatapplication.Utils.ConversationItemListDiffCallback;
 import com.ducnguyenvan.mysuperchatapplication.databinding.ConversationItemRowBinding;
 
 import java.util.ArrayList;
@@ -31,8 +34,6 @@ public class HistoryRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         conversationItemRowBinding = DataBindingUtil.inflate(layoutInflater,R.layout.conversation_item_row,parent,false);
-        conversationItemViewModel = new ConversationItemViewModel(context);
-        conversationItemRowBinding.setViewModel(conversationItemViewModel);
         return new ConversationItemViewHolder(conversationItemRowBinding);
     }
 
@@ -40,7 +41,9 @@ public class HistoryRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ConversationItem item = conversations.get(position);
         ((ConversationItemViewHolder)holder).bind(item);
-        conversationItemViewModel.cId = item.getcId();
+        conversationItemViewModel = new ConversationItemViewModel(context, item.getcId());
+        conversationItemRowBinding.setViewModel(conversationItemViewModel);
+        Log.i("convItemAdt", "cid: " + conversationItemViewModel.cId);
     }
 
     @Override
@@ -61,5 +64,12 @@ public class HistoryRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             this.conversationItemRowBinding.setConversation(item);
             this.conversationItemRowBinding.executePendingBindings();
         }
+
+    }
+
+    public void updateList(ArrayList<ConversationItem> newList) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ConversationItemListDiffCallback(this.conversations, newList));
+        diffResult.dispatchUpdatesTo(this);
+        this.conversations = newList;
     }
 }

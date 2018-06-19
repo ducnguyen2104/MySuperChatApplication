@@ -50,7 +50,7 @@ public class MyImageMessageItem extends BaseMessageItem {
 
     public void setImgName(String imgName) {
         this.imgName = imgName;
-        notifyPropertyChanged(BR.imgName);
+        registry.notifyChange(this,BR.imgName);
     }
 
     public String getTimestamp() {
@@ -67,7 +67,7 @@ public class MyImageMessageItem extends BaseMessageItem {
 
     public void setStatusTextViewVisibility(int statusTextViewVisibility) {
         this.statusTextViewVisibility = (statusTextViewVisibility);
-        notifyPropertyChanged(BR.statusTextViewVisibility);
+        registry.notifyChange(this, BR.statusTextViewVisibility);
     }
 
     public int getRetryButtonVisibility() {
@@ -76,7 +76,7 @@ public class MyImageMessageItem extends BaseMessageItem {
 
     public void setRetryButtonVisibility(int retryButtonVisibility) {
         this.retryButtonVisibility = retryButtonVisibility;
-        notifyPropertyChanged(BR.retryButtonVisibility);
+        registry.notifyChange(this, BR.retryButtonVisibility);
     }
 
     public String getStatus() {
@@ -85,7 +85,7 @@ public class MyImageMessageItem extends BaseMessageItem {
 
     public void setStatus(String status) {
         this.status = status;
-        notifyPropertyChanged(BR.status);
+        registry.notifyChange(this, BR.status);
     }
 }
 

@@ -30,6 +30,7 @@ public class LoginViewModel extends ViewModel {
 
     public LoginViewModel(Context context) {
         this.context = context;
+        //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         database = FirebaseDatabase.getInstance().getReference();
     }
 
@@ -52,31 +53,7 @@ public class LoginViewModel extends ViewModel {
             return;
         }
         DatabaseReference databaseReference = database.child("users").child(username);
-        /*Query userQuery = databaseReference.orderByChild("username").equalTo(username);
-        userQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            User user = new User();
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    user = singleSnapshot.getValue(User.class);
-                }
-                Log.i("user", username +  ", " + password);
-                if(user.getPassword() != null && user.getPassword().equals(password)){{
-                    Intent intent = new Intent(context,MainActivity.class);
-                    intent.putExtra("username",user.getUsername());
-                    context.startActivity(intent);
-                    ((Activity)context).finish();
-                }}
-                else {
-                    Toast.makeText(context,"Tên đăng nhập hoặc mật khẩu không đúng", Toast.LENGTH_LONG).show();
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });*/
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             User user = new User();
             @Override

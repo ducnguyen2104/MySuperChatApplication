@@ -25,6 +25,8 @@ import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyImageMessageItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyMessageTextItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.YourImageMessageItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.YourMessageTextItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.LocalConversation;
+import com.ducnguyenvan.mysuperchatapplication.Model.LocalMessage;
 import com.ducnguyenvan.mysuperchatapplication.Model.Message;
 import com.ducnguyenvan.mysuperchatapplication.R;
 import com.ducnguyenvan.mysuperchatapplication.Utils.ImagePicker;
@@ -47,11 +49,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class ConversationActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
     static RecyclerView recyclerView;
+    static MessageRvAdapter adapter;
     static ArrayList<BaseMessageItem> messageItems = new ArrayList<>();
     ActivityConversationBinding activityConversationBinding;
     static ConversationViewModel conversationViewModel;
@@ -70,6 +81,7 @@ public class ConversationActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         currentCId = getIntent().getStringExtra("cId"); //username1|username2
+        Log.i("convAct", "" + currentCId);
         membersString = getIntent().getStringExtra("membersString"); //!= null is conversation has 2 or more members
         if (membersString == null) {
             membersString = "";
@@ -93,7 +105,24 @@ public class ConversationActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.conversation_rv);
         messageRef = MainActivity.database.child("messages").child(currentCId);
         DatabaseReference convRef = MainActivity.database.child("conversations").child(currentCId);
-        convRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        MainActivity.localDatabase.localDBDao().findConversationById(currentCId).subscribeOn(Schedulers.io()).subscribe(new SingleObserver<LocalConversation>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(LocalConversation localConversation) {
+                isConversationCreated = true;
+                initRecyclerView();
+                Log.i("convAct", "init RV");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+            }
+        });
+        /*convRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
@@ -106,7 +135,7 @@ public class ConversationActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        });*/
         emoji = findViewById(R.id.add_emoji_btn);
         gridView = findViewById(R.id.emoji_grid);
         gridView.setVisibility(View.GONE);
@@ -185,7 +214,7 @@ public class ConversationActivity extends AppCompatActivity {
                         messageItems.add(new YourMessageTextItem(R.drawable.avt, newMessage.getName(), newMessage.getMessage(), newMessage.getTimestamp(), newMessage.getRealtimestamp(), isFirst));
                     }
                 }
-                recyclerView.getAdapter().notifyItemInserted(messageItems.size() - 1);
+                adapter.updateList(messageItems);
                 recyclerView.scrollToPosition(messageItems.size() - 1);
             }
 
@@ -215,38 +244,73 @@ public class ConversationActivity extends AppCompatActivity {
         YourMessageTextItem lastMessage = new YourMessageTextItem();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(recyclerView.getContext(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
-        final MessageRvAdapter adapter = new MessageRvAdapter(messageItems, recyclerView.getContext());
+        adapter = new MessageRvAdapter(messageItems, recyclerView.getContext());
         recyclerView.setAdapter(adapter);
+        //load local
+        Log.i("ConvAct", "load local msg");
+        MainActivity.localDatabase.localDBDao().findMessagesByConvId(currentCId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<List<LocalMessage>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(List<LocalMessage> localMessages) {
+                        Log.i("ConvAct", "load success local msg: " + localMessages.size());
+                        for(LocalMessage single : localMessages) {
+                            messageItems.add(single.toMessage().toMessageItem(messageItems.size() == 0 || !single.getName().equals(messageItems.get(messageItems.size() - 1).getUsername())));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("ConvAct", "failed to load local msg ");
+                    }
+                });
+
+        //load firebase
+        Log.i("ConvAct", "load firebase msg");
         DatabaseReference databaseReference = MainActivity.database.child("messages").child(currentCId);
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<BaseMessageItem> newMessagesItems = new ArrayList<>();
                 for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
                     Message message = new Message();
                     Map<String, Object> map = (HashMap<String, Object>) singleSnapshot.getValue();
                     //Log.i("map", map + "");
                     message.mapToObject(map);
-                    String msg = message.getMessage();
+                    newMessagesItems.add(message.toMessageItem(messageItems.size() == 0 || !message.getName().equals(messageItems.get(messageItems.size() - 1).getUsername())));
+                    Observable<Message> observable = Observable.just(message);
+                    observable.subscribeOn(Schedulers.io()).subscribe(new Observer<Message>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
 
-                    if (message.getMessage().contains("/-img:")) { //img message
-                        String imgName = currentCId + "/" + message.getMessage().substring(6, message.getMessage().length());
-                        if (message.getName().equals(MainActivity.currentUser.getUsername())) {
-                            messageItems.add(new MyImageMessageItem(message.getName(), imgName, message.getTimestamp(), message.getRealtimestamp(), false));
-                        } else {
-                            boolean isFirst = messageItems.size() == 0 || !message.getName().equals(messageItems.get(messageItems.size() - 1).getUsername());
-                            messageItems.add(new YourImageMessageItem(R.drawable.avt, message.getName(), imgName, message.getTimestamp(), message.getRealtimestamp(), isFirst));
                         }
-                    } else { //text message
-                        if (message.getName().equals(MainActivity.currentUser.getUsername())) {
-                            messageItems.add(new MyMessageTextItem(message.getName(), msg, message.getTimestamp(), message.getRealtimestamp()));
-                        } else {
-                            boolean isFirst = messageItems.size() == 0 || !message.getName().equals(messageItems.get(messageItems.size() - 1).getUsername());
-                            messageItems.add(new YourMessageTextItem(R.drawable.avt, message.getName(), message.getMessage(), message.getTimestamp(), message.getRealtimestamp(), isFirst));
-                        }
-                    }
 
-                    adapter.notifyItemInserted(messageItems.size() - 1);
+                        @Override
+                        public void onNext(Message message) {
+                            MainActivity.localDatabase.localDBDao().insertMessages(message.toLocalMessage());
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    });
+                    //adapter.notifyItemInserted(messageItems.size() - 1);
                 }
+                Log.i("convAct", "load success firebase msg:" + newMessagesItems.size());
+                adapter.updateList(newMessagesItems);
+                messageItems = newMessagesItems ;
                 recyclerView.scrollToPosition(messageItems.size() - 1);
                 updateRecyclerView();
             }
@@ -298,7 +362,7 @@ public class ConversationActivity extends AppCompatActivity {
                 Date date = new Date(realTimestamp);
                 DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 String timestamp = sdf.format(date);
-                final Message newMessage = new Message("/-img:" + key, MainActivity.currentUser.getUsername(),timestamp,realTimestamp);
+                final Message newMessage = new Message("/-img:" + key, MainActivity.currentUser.getUsername(),timestamp,realTimestamp, currentCId);
                 //add message item
                 final MyImageMessageItem newMsgItem = new MyImageMessageItem(newMessage.getName(), key, newMessage.getTimestamp(), newMessage.getRealtimestamp(), true);
                 messageItems.add(newMsgItem);

@@ -1,13 +1,15 @@
 package com.ducnguyenvan.mysuperchatapplication.Model.Items;
 
-import android.databinding.BaseObservable;
+import android.databinding.Observable;
+import android.databinding.PropertyChangeRegistry;
 
-public abstract class BaseMessageItem extends BaseObservable implements Item  {
+public abstract class BaseMessageItem implements Observable, Item  {
 
     public String username;
     public String timestamp;
     public long realtimestamp;
     public boolean isFirst;
+    protected PropertyChangeRegistry registry = new PropertyChangeRegistry();
 
     public String getUsername() {
         return username;
@@ -45,12 +47,21 @@ public abstract class BaseMessageItem extends BaseObservable implements Item  {
     public boolean equalsContent(Object other) {
         return other instanceof BaseMessageItem &&
                 ((BaseMessageItem) other).username.equals(this.username) &&
-                ((BaseMessageItem) other).timestamp.equals(this.timestamp) &&
                 ((BaseMessageItem) other).realtimestamp == this.realtimestamp;
     }
 
     @Override
     public boolean equals(Object obj) {
         return obj == this;
+    }
+
+    @Override
+    public void addOnPropertyChangedCallback(OnPropertyChangedCallback callback) {
+        registry.add(callback);
+    }
+
+    @Override
+    public void removeOnPropertyChangedCallback(OnPropertyChangedCallback callback) {
+        registry.remove(callback);
     }
 }
