@@ -27,6 +27,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         ActivityLoginBinding activityLoginBinding =  DataBindingUtil.setContentView(this,R.layout.activity_login);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         database = FirebaseDatabase.getInstance().getReference();

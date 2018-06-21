@@ -20,10 +20,15 @@ import com.ducnguyenvan.mysuperchatapplication.Contacts.ContactsFragment;
 import com.ducnguyenvan.mysuperchatapplication.History.HistoryFragment;
 import com.ducnguyenvan.mysuperchatapplication.LocalDB.LocalDatabase;
 import com.ducnguyenvan.mysuperchatapplication.Login.LoginActivity;
+import com.ducnguyenvan.mysuperchatapplication.Model.LocalConversation;
+import com.ducnguyenvan.mysuperchatapplication.Model.LocalMessage;
 import com.ducnguyenvan.mysuperchatapplication.Model.LocalUser;
+import com.ducnguyenvan.mysuperchatapplication.Model.LoggedInUser;
 import com.ducnguyenvan.mysuperchatapplication.Model.User;
+import com.ducnguyenvan.mysuperchatapplication.Register.RegisterActivity;
 import com.ducnguyenvan.mysuperchatapplication.Setting.SettingFragment;
 import com.ducnguyenvan.mysuperchatapplication.Utils.MergeData;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,10 +39,13 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -57,127 +65,158 @@ public class MainActivity extends AppCompatActivity {
 
     public static MergeData mergeData;
 
+    public static String username;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        currentUser = new User();
-        //get screen width and height
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        MainActivity.this.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        scrHeight = displayMetrics.heightPixels;
-        scrWidth = displayMetrics.widthPixels;
-
         //get local database instance
-        localDatabase = Room.databaseBuilder(getApplicationContext(),LocalDatabase.class, "localDB").build();
-
-        final String username = getIntent().getStringExtra("username");
-
-        //get user in local db
-        localDatabase.localDBDao().getUserByName(username)//single
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<LocalUser>() {
-                    @Override
-                    public void onSubscribe(Subscription s) {
-
-                    }
-
-                    @Override
-                    public void onNext(LocalUser localUser) {
-                        currentUser = localUser.toUser();
-                        Log.i("currentUser", "" + currentUser.toString());
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-
-
-        //get user from firebase and update current user, local database
-        database = FirebaseDatabase.getInstance().getReference();
-        final User firebaseUser = new User();
-        DatabaseReference databaseReference = database.child("users").child(username);
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        localDatabase = Room.databaseBuilder(getApplicationContext(),LocalDatabase.class, "localDB")//.fallbackToDestructiveMigration()
+                .build();
+        localDatabase.localDBDao().getLoggedInUser().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<LoggedInUser>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String,Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
-                firebaseUser.mapToObject(map);
-                if(!currentUser.equals(firebaseUser)) {
-                    currentUser = firebaseUser;
-                    Observable<User> observable = Observable.just(firebaseUser);
-                    observable
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.computation())
-                            .subscribe(new Observer<User>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
+            public void onSubscribe(Disposable d) {
 
-                        }
-
-                        @Override
-                        public void onNext(User user) {
-                            Log.i("main activity","insert user: " + user.toLocalUser().toString());
-                            localDatabase.localDBDao().insertUsers(user.toLocalUser());
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-
-                        }
-
-                        @Override
-                        public void onComplete() {
-
-                        }
-                    });
-
-                }
-                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-                mViewPager = (ViewPager) findViewById(R.id.container);
-                mViewPager.setAdapter(mSectionsPagerAdapter);
-                mViewPager.setOffscreenPageLimit(2);
-                TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-                tabLayout.setupWithViewPager(mViewPager);
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                if(currentUser.getUsername().equals("")) {
-                    Toast.makeText(getApplicationContext(),"Không thể lấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+            public void onSuccess(LoggedInUser loggedInUser) {
+                Log.i("loggedin user", "" + loggedInUser);
+                if(loggedInUser == null || loggedInUser.getUsername() == null) {
                     Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
                     startActivity(intent);
                     finish();
                 }
+                username = loggedInUser.getUsername();
+                Single.just(username).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(String s) {
+                        currentUser = new User();
+                        //get screen width and height
+                        DisplayMetrics displayMetrics = new DisplayMetrics();
+                        MainActivity.this.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                        scrHeight = displayMetrics.heightPixels;
+                        scrWidth = displayMetrics.widthPixels;
+
+                        //get user in local db
+                        localDatabase.localDBDao().getUserByName(username)//single
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Subscriber<LocalUser>() {
+                                    @Override
+                                    public void onSubscribe(Subscription s) {
+
+                                    }
+
+                                    @Override
+                                    public void onNext(LocalUser localUser) {
+                                        currentUser = localUser.toUser();
+                                        Log.i("currentUser", "" + currentUser.toString());
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable t) {
+
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+
+                                    }
+                                });
+
+
+                        //get user from firebase and update current user, local database
+                        database = FirebaseDatabase.getInstance().getReference();
+                        final User firebaseUser = new User();
+                        DatabaseReference databaseReference = database.child("users").child(username);
+                        databaseReference.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Map<String,Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
+                                firebaseUser.mapToObject(map);
+                                if(!currentUser.equals(firebaseUser)) {
+                                    currentUser = firebaseUser;
+                                    Single.just(firebaseUser).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new SingleObserver<User>() {
+                                        @Override
+                                        public void onSubscribe(Disposable d) {
+
+                                        }
+
+                                        @Override
+                                        public void onSuccess(User user) {
+                                            Log.i("local db", "" + localDatabase.localDBDao());
+                                            MainActivity.localDatabase.localDBDao().insertUsers(user.toLocalUser());
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+
+                                        }
+                                    });
+
+                                }
+                                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+                                mViewPager = (ViewPager) findViewById(R.id.container);
+                                mViewPager.setAdapter(mSectionsPagerAdapter);
+                                mViewPager.setOffscreenPageLimit(2);
+                                TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+                                tabLayout.setupWithViewPager(mViewPager);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                if(currentUser.getUsername().equals("")) {
+                                    Toast.makeText(getApplicationContext(),"Không thể lấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
+                        });
+
+                        reuploadAllFailedUploadMessage();
+                        reUploadAllFaileđUploadConversation();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
-//        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-//        mViewPager = (ViewPager) findViewById(R.id.container);
-//        mViewPager.setAdapter(mSectionsPagerAdapter);
-//        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-//        tabLayout.setupWithViewPager(mViewPager);
     }
 
-    /*@Override
-    public void onBackPressed() {
-        currentUser = null;
-        finish();
-        super.onBackPressed();
-    }*/
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        reuploadAllFailedUploadMessage();
+        reUploadAllFaileđUploadConversation();
+    }
+
+
 
     @Override
     public void onBackPressed() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.MyDialogTheme);
 
         builder.setTitle("Thoát");
-        builder.setMessage("Đăng xuất và thoát?");
+        builder.setMessage("Thoát ứng dụng?");
         builder.setPositiveButton("Thoát", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 currentUser = null;
@@ -232,6 +271,94 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
+    }
+
+    public static void reuploadAllFailedUploadMessage() {
+        localDatabase.localDBDao().findUploadFailedMessage(false).subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+                .subscribe(new SingleObserver<List<LocalMessage>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(List<LocalMessage> localMessages) {
+                        //reupload to firebase
+                        for(LocalMessage single : localMessages) {
+                            String key = database.child("messages").child(single.convId).push().getKey();
+                            database.child("messages").child(single.convId).child(key).setValue(single.toMessage()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    //update local msg status
+                                    Single.just(1).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new SingleObserver<Integer>() {
+                                        @Override
+                                        public void onSubscribe(Disposable d) {
+
+                                        }
+
+                                        @Override
+                                        public void onSuccess(Integer integer) {
+                                            localDatabase.localDBDao().updateLocalMsgSendStatus(single.convId, single.name, single.realtimestamp, true);
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                });
+    }
+
+    public static void reUploadAllFaileđUploadConversation() {
+        localDatabase.localDBDao().findUploadFailedConversation(false).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new SingleObserver<List<LocalConversation>>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(List<LocalConversation> localConversations) {
+                //reupload to firebase
+                for(LocalConversation single: localConversations) {
+                    database.child("conversations").child(single.getcId()).child("lastMessage").setValue(single.lastMessage)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Single.just(1).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new SingleObserver<Integer>() {
+                                @Override
+                                public void onSubscribe(Disposable d) {
+
+                                }
+
+                                @Override
+                                public void onSuccess(Integer integer) {
+                                    localDatabase.localDBDao().updateLocalConvStatus(single.getcId(),true);
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
     }
 
 }

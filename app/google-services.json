@@ -15,12 +15,24 @@
       },
       "oauth_client": [
         {
+          "client_id": "995751082633-gh1iu6j11opicvhnequlbcql9kn70m2a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ducnguyenvan.mysuperchatapplication",
+            "certificate_hash": "46106f522c20b9ed7c42c8ae5a263d67d7f990bb"
+          }
+        },
+        {
           "client_id": "995751082633-botc8eiotptgtfngscvlooaakji9m1du.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.ducnguyenvan.mysuperchatapplication",
             "certificate_hash": "ab8614a5284011b656265d0d257d321d142e94d9"
           }
+        },
+        {
+          "client_id": "995751082633-v2fpheout5g5qk8dbk52bqc77fnb6csq.apps.googleusercontent.com",
+          "client_type": 3
         },
         {
           "client_id": "995751082633-v2fpheout5g5qk8dbk52bqc77fnb6csq.apps.googleusercontent.com",

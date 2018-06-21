@@ -2,12 +2,15 @@ package com.ducnguyenvan.mysuperchatapplication.Login;
 
 import android.app.Activity;
 import android.arch.lifecycle.ViewModel;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.ducnguyenvan.mysuperchatapplication.LocalDB.LocalDatabase;
 import com.ducnguyenvan.mysuperchatapplication.MainActivity;
+import com.ducnguyenvan.mysuperchatapplication.Model.LoggedInUser;
 import com.ducnguyenvan.mysuperchatapplication.Model.User;
 import com.ducnguyenvan.mysuperchatapplication.Register.RegisterActivity;
 import com.google.firebase.database.DataSnapshot;
@@ -18,6 +21,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class LoginViewModel extends ViewModel {
 
@@ -64,12 +72,33 @@ public class LoginViewModel extends ViewModel {
                 Log.i("user snapshot",   ", map:" + map);
                 String pass = map.get("password").toString();
                 String uid = map.get("username").toString();
-                if(pass != null && pass.equals(password)){{
-                    Intent intent = new Intent(context,MainActivity.class);
-                    intent.putExtra("username",uid);
-                    context.startActivity(intent);
-                    ((Activity)context).finish();
-                }}
+                if(pass != null && pass.equals(password)){
+                    LocalDatabase localDatabase = Room.databaseBuilder(context,LocalDatabase.class, "localDB")
+                            .build();
+                    Single.just(1).observeOn(Schedulers.io()).subscribe(new SingleObserver<Integer>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onSuccess(Integer integer) {
+                            LoggedInUser loggedInUser = new LoggedInUser();
+                            loggedInUser.setUsername(uid);
+                            localDatabase.localDBDao().insertLoggedInUser(loggedInUser);
+                            Intent intent = new Intent(context,MainActivity.class);
+                            //intent.putExtra("username",uid);
+                            context.startActivity(intent);
+                            ((Activity)context).finish();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+                    });
+
+                }
                 else {
                     Toast.makeText(context,"Tên đăng nhập hoặc mật khẩu không đúng", Toast.LENGTH_LONG).show();
                 }

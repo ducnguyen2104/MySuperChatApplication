@@ -40,9 +40,9 @@ public class HistoryRvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ConversationItem item = conversations.get(position);
-        ((ConversationItemViewHolder)holder).bind(item);
         conversationItemViewModel = new ConversationItemViewModel(context, item.getcId());
         conversationItemRowBinding.setViewModel(conversationItemViewModel);
+        ((ConversationItemViewHolder)holder).bind(item);
         Log.i("convItemAdt", "cid: " + conversationItemViewModel.cId);
     }
 

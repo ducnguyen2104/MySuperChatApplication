@@ -102,12 +102,13 @@ public class Conversation {
         return new ConversationItem(R.drawable.avt, this.getcId(), name, lastMsg,this.getLastMessage().getTimestamp()+"");
     }
 
-    public LocalConversation toLocalConversation() {
+    public LocalConversation toLocalConversation(boolean isUpdated) {
         LocalConversation conversation = new LocalConversation();
         conversation.cId = this.cId;
         conversation.lastMessage = this.lastMessage;
         conversation.title = this.title;
         conversation.members = this.members;
+        conversation.isUploaded = isUpdated;
         return conversation;
     }
 

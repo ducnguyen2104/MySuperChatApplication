@@ -1,5 +1,6 @@
 package com.ducnguyenvan.mysuperchatapplication.History;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -81,13 +83,14 @@ public class HistoryFragment extends Fragment {
     public void initRecyclerView(View rootView) { //from local database
         recyclerView = rootView.findViewById(R.id.history_rv);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        //linearLayoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(linearLayoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), LinearLayout.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
         adapter = new HistoryRvAdapter(conversationsItem, getContext());
         recyclerView.setAdapter(adapter);
         if (conversationIds.size() == 0) { //new user, no history
-            updateRecyclerView();
+            //updateRecyclerView(getContext());
             return;
         }
 
@@ -105,43 +108,28 @@ public class HistoryFragment extends Fragment {
                         ArrayList<ConversationItem> newItemList = new ArrayList<>();
                         for (LocalConversation single : localConversations) {
                             newItemList.add(single.toConversation().makeConversationItem());
+                            Log.i("history frag", "local conv " + single.cId);
                         }
                         adapter.updateList(newItemList);
-                        loadFirebaseAnđUpateLocal();
-                        updateRecyclerView();
+                        //loadFirebaseAnđUpateLocal();
+                        //updateRecyclerView(getContext());
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        loadFirebaseAnđUpateLocal();
-                        updateRecyclerView();
+                        Log.i("history frag", "no local conv ");
+                        //loadFirebaseAnđUpateLocal();
+                        //updateRecyclerView(getContext());
                     }
                 });
+        loadFirebaseAnđUpateLocal();
     }
 
     public void loadFirebaseAnđUpateLocal() {
+        Log.i("history frag", "load fb and update local");
         DatabaseReference databaseReference = MainActivity.database.child("conversations");
-        //get all conversations with ids in list
-        /*for (int i = 0; i < conversationIds.size(); i++) {
-            databaseReference.child(conversationIds.get(i)).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Conversation conversation = new Conversation();
-                    Map<String, Object> map = (HashMap<String, Object>) dataSnapshot.getValue();
-                    conversation.mapToObject(map);
-                    ConversationItem newItem = conversation.makeConversationItem();
-                    newConversations.add(conversation);
-                    newConversationItems.add(newItem);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-        }*/
-        //load all conversation
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        //load all conversation and update local DB
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 ArrayList<Conversation> newConversations = new ArrayList<>();
@@ -151,45 +139,58 @@ public class HistoryFragment extends Fragment {
                     Conversation conversation = new Conversation();
                     Map<String, Object> map = (HashMap<String, Object>) single.getValue();
                     conversation.mapToObject(map);
-                    Log.i("firebase:", map + "");
-                    Log.i("firebase:", conversation.toString() + "");
-                    ConversationItem newItem = conversation.makeConversationItem();
-                    for(String s : conversationIds) {
-                        if(conversation.getcId().equals(s)) {
-                            newConversations.add(conversation);
-                            newConversationItems.add(newItem);
-                            break;
+                    Single.just(conversation).observeOn(Schedulers.io()).subscribe(new SingleObserver<Conversation>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
                         }
-                    }
 
+                        @Override
+                        public void onSuccess(Conversation conversation) {
+                            Log.i("history frag", "update local db " + conversation.cId);
+                            MainActivity.localDatabase.localDBDao().insertConversations(conversation.toLocalConversation(true));
+                            MainActivity.localDatabase.localDBDao().findConversationsByListIdsWhenLoggingIn(MainActivity.currentUser.conversations)
+                                    .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(new SingleObserver<List<LocalConversation>>() {
+                                        @Override
+                                        public void onSubscribe(Disposable d) {
+
+                                        }
+
+                                        @Override
+                                        public void onSuccess(List<LocalConversation> localConversations) {
+                                            Log.i("history frag", "local conv: " + localConversations);
+                                            ArrayList<ConversationItem> newList = new ArrayList<>();
+                                            for(LocalConversation localConversation : localConversations) {
+                                                for(String s : MainActivity.currentUser.conversations) {
+                                                    Log.i("history frag", "s: " + s);
+                                                    Log.i("history frag", "local conv cid: " + localConversation.cId);
+                                                    if(s.equals(localConversation.cId)) {
+                                                        newList.add(localConversation.toConversation().makeConversationItem());
+                                                        Log.i("history frag", "updated conv " + localConversation.cId);
+                                                    }
+                                                }
+                                            }
+                                            Log.i("history frag", "conversation list: " + newList.size());
+                                            adapter = new HistoryRvAdapter(newList, getContext());
+                                            recyclerView.setAdapter(adapter);
+                                            //adapter.updateList(newList);
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+                    });
                 }
-                Log.i("firebase", "" + newConversations + ", " + newConversationItems.size());
-                adapter.updateList(newConversationItems);
-                conversations = newConversations;
-                conversationsItem = newConversationItems;
-                Log.i("firebase update", "" + conversations + ", " + conversationsItem.size());
-                for (Conversation single : conversations) {
-                    newLocalConversations.add(single.toLocalConversation());
-                }
-                Single<List<LocalConversation>> single = Single.just(newLocalConversations);
-                single.observeOn(Schedulers.io())
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(new SingleObserver<List<LocalConversation>>() {
-                            @Override
-                            public void onSubscribe(Disposable d) {
-
-                            }
-
-                            @Override
-                            public void onSuccess(List<LocalConversation> localConversations) {
-                                MainActivity.localDatabase.localDBDao().insertConversations(localConversations.toArray(new LocalConversation[localConversations.size()]));
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-
-                            }
-                        });
+                Log.i("history frag", "conversations" + MainActivity.currentUser.conversations);
             }
 
             @Override
@@ -200,70 +201,6 @@ public class HistoryFragment extends Fragment {
 
 
 
-    }
-
-    public static void updateRecyclerView() { //called when close conversation activity
-        DatabaseReference databaseReference = MainActivity.database.child("conversations");
-        databaseReference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Conversation conversation = new Conversation();
-                Map<String, Object> map = (HashMap<String, Object>) dataSnapshot.getValue();
-                Log.i("history fragment", "child added" + map);
-                conversation.mapToObject(map);
-                if (conversation.getcId() == null) {
-                    return;
-                }
-                for (int i = 0; i < conversationsItem.size(); i++) {
-                    if (conversation.getcId().equals(conversationsItem.get(i).getcId())) {
-                        //if conversation is already in the list, return
-                        return;
-                    }
-                }
-                //create new conversation item
-                for (int i = 0; i < conversation.getMembers().size(); i++) { //check if current user is member of the conversation
-                    if (MainActivity.currentUser.getUsername().equals(conversation.getMembers().get(i))) {
-                        conversationsItem.add(conversation.makeConversationItem());
-                        //adapter.notifyItemInserted(conversationsItem.size() - 1);
-                        adapter.updateList(conversationsItem);
-                        break;
-                    }
-                }
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Conversation conversation = new Conversation();
-                Map<String, Object> map = (HashMap<String, Object>) dataSnapshot.getValue();
-                conversation.mapToObject(map);
-                Log.i("history fragment", "child changed" + map);
-                for (int i = 0; i < conversations.size(); i++) {
-                    if (conversations.get(i).getcId().equals(conversation.getcId())) {
-                        String lastMsg = conversation.getLastMessage().getMessage().contains("/-img:") ? conversation.getLastMessage().getName() + " đã gửi một ảnh"
-                                : (conversation.getLastMessage().getName() + ": " + conversation.getLastMessage().getMessage());
-                        conversationsItem.get(i).setLastMsg(lastMsg);
-                        conversationsItem.get(i).setLastMsgTime(conversation.getLastMessage().getTimestamp() + "");
-                        adapter.updateList(conversationsItem);
-                    }
-                }
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     @Override

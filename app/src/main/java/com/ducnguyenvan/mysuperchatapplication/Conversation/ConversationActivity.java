@@ -54,6 +54,7 @@ import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -120,22 +121,9 @@ public class ConversationActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
+                initRecyclerView();
             }
         });
-        /*convRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue() != null) {
-                    isConversationCreated = true;
-                    initRecyclerView();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });*/
         emoji = findViewById(R.id.add_emoji_btn);
         gridView = findViewById(R.id.emoji_grid);
         gridView.setVisibility(View.GONE);
@@ -246,6 +234,7 @@ public class ConversationActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
         adapter = new MessageRvAdapter(messageItems, recyclerView.getContext());
         recyclerView.setAdapter(adapter);
+
         //load local
         Log.i("ConvAct", "load local msg");
         MainActivity.localDatabase.localDBDao().findMessagesByConvId(currentCId)
@@ -263,6 +252,7 @@ public class ConversationActivity extends AppCompatActivity {
                         for(LocalMessage single : localMessages) {
                             messageItems.add(single.toMessage().toMessageItem(messageItems.size() == 0 || !single.getName().equals(messageItems.get(messageItems.size() - 1).getUsername())));
                         }
+                        recyclerView.scrollToPosition(messageItems.size() - 1);
                     }
 
                     @Override
@@ -277,42 +267,72 @@ public class ConversationActivity extends AppCompatActivity {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList<BaseMessageItem> newMessagesItems = new ArrayList<>();
                 for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
                     Message message = new Message();
                     Map<String, Object> map = (HashMap<String, Object>) singleSnapshot.getValue();
                     //Log.i("map", map + "");
                     message.mapToObject(map);
-                    newMessagesItems.add(message.toMessageItem(messageItems.size() == 0 || !message.getName().equals(messageItems.get(messageItems.size() - 1).getUsername())));
-                    Observable<Message> observable = Observable.just(message);
-                    observable.subscribeOn(Schedulers.io()).subscribe(new Observer<Message>() {
+                    if(message.getMessage() != null) {
+                        isConversationCreated = true;
+                    }
+                     else {
+                        return;
+                    }
+                    //newMessagesItems.add(message.toMessageItem(messageItems.size() == 0 || !message.getName().equals(messageItems.get(messageItems.size() - 1).getUsername())));
+                    Single.just(message).subscribeOn(Schedulers.io()).subscribe(new SingleObserver<Message>() {
                         @Override
                         public void onSubscribe(Disposable d) {
 
                         }
 
                         @Override
-                        public void onNext(Message message) {
-                            MainActivity.localDatabase.localDBDao().insertMessages(message.toLocalMessage());
+                        public void onSuccess(Message message) {
+                            //update in local db
+                            MainActivity.localDatabase.localDBDao().insertMessages(message.toLocalMessage(true));
                         }
 
                         @Override
                         public void onError(Throwable e) {
 
                         }
-
-                        @Override
-                        public void onComplete() {
-
-                        }
                     });
                     //adapter.notifyItemInserted(messageItems.size() - 1);
                 }
-                Log.i("convAct", "load success firebase msg:" + newMessagesItems.size());
-                adapter.updateList(newMessagesItems);
-                messageItems = newMessagesItems ;
-                recyclerView.scrollToPosition(messageItems.size() - 1);
-                updateRecyclerView();
+                //Log.i("convAct", "load success firebase msg:" + newMessagesItems.size());
+                //load local db again and update ui
+                Log.i("ConvAct", "load local db again and update ui");
+                ArrayList<BaseMessageItem> newMessagesItems = new ArrayList<>();
+                MainActivity.localDatabase.localDBDao().findMessagesByConvId(currentCId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new SingleObserver<List<LocalMessage>>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onSuccess(List<LocalMessage> localMessages) {
+                                for(LocalMessage single : localMessages) {
+                                    newMessagesItems.add(single.toMessage().toMessageItem(newMessagesItems.size() == 0 || !single.getName().equals(newMessagesItems.get(newMessagesItems.size() - 1).getUsername())));
+                                }
+                                if(adapter == null || messageItems == null || recyclerView == null) {
+                                    return;
+                                }
+                                adapter.updateList(newMessagesItems);
+                                messageItems = newMessagesItems;
+                                recyclerView.scrollToPosition(messageItems.size() - 1);
+                                Log.i("ConvAct", "scroll to " + messageItems.size());
+                                updateRecyclerView();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                            }
+                        });
+
+
+                //recyclerView.scrollToPosition(messageItems.size() - 1);
             }
 
             @Override

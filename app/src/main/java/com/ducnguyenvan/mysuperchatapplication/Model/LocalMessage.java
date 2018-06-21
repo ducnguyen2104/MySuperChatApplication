@@ -19,6 +19,7 @@ public class LocalMessage {
     @NonNull
     public long realtimestamp;
     public String convId;
+    public boolean isUploaded;
 
     public long getRealtimestamp() {
         return realtimestamp;
@@ -60,17 +61,17 @@ public class LocalMessage {
         this.convId = convId;
     }
 
-    public void mapToObject(Map<String,Object> map) {
-        this.message = map.get("message").toString();
-        this.name = map.get("name").toString();
-        this.timestamp = map.get("timestamp").toString();
-        this.realtimestamp = Long.parseLong(String.valueOf(map.get("realtimestamp")));
-        this.convId = map.get("convId").toString();
+    public boolean isUploaded() {
+        return isUploaded;
+    }
+
+    public void setUploaded(boolean uploaded) {
+        isUploaded = uploaded;
     }
 
     @Override
     public String toString() {
-        return ("Local message: [" + this.name + ", " + this.message + ", " + this.timestamp + "]");
+        return ("Local message: [" + this.name + ", " + this.message + ", " + this.timestamp + ", " + isUploaded + "]");
     }
 
     public Message toMessage() {

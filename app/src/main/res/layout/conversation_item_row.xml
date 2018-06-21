@@ -18,7 +18,6 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/history_img"
-        android:src="@drawable/avt"
         app:conversationimg="@{conversation.conversationName}"/>
 
     <TextView

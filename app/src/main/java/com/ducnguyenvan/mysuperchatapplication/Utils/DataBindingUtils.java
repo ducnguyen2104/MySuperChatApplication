@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.ducnguyenvan.mysuperchatapplication.MainActivity;
@@ -78,7 +79,13 @@ public class DataBindingUtils  {
                     .into(imageView);
         }
         else {
-            MainActivity.database.child("users").child(name).child("avttimestamp").addListenerForSingleValueEvent(new ValueEventListener() {
+            GlideApp.with((Activity) context).load(avtStorageReference)
+                    .centerCrop()
+                    .apply(RequestOptions.circleCropTransform())
+                    //.diskCacheStrategy(DiskCacheStrategy.NONE)
+                    //.skipMemoryCache(true)
+                    .into(imageView);
+            /*MainActivity.database.child("users").child(name).child("avttimestamp").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     String avttimestamp = dataSnapshot.getValue().toString();
@@ -95,7 +102,7 @@ public class DataBindingUtils  {
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
                 }
-            });
+            });*/
         }
     }
     @BindingAdapter("android:src")

@@ -83,18 +83,6 @@ public class LocalUser {
         this.password = password;
     }
 
-    public void mapToObject(Map<String, Object> map) {
-        this.username = map.get("username").toString();
-        this.password = map.get("password").toString();
-        this.fullname = map.get("fullname").toString();
-        this.phonenumber = map.get("phonenumber").toString();
-        HashMap<String,String> cont = (HashMap<String,String>)map.get("contacts");
-        this.contacts = (cont != null ? new ArrayList<>(cont.values()) : new ArrayList<String>());
-        HashMap<String,String> conv = (HashMap<String,String>)map.get("conversations");
-        this.conversations = (conv != null ? new ArrayList<>(conv.values()) : new ArrayList<String>());
-        this.avttimestamp = Long.parseLong(map.get("avttimestamp").toString());
-    }
-
     @Override
     public boolean equals(Object obj) {
         User other = (User)obj;

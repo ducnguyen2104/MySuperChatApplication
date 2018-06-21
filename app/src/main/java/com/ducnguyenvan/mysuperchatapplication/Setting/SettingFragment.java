@@ -52,7 +52,7 @@ public class SettingFragment extends Fragment {
         fragmentSettingBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_setting, container, false);
         //View rootView = inflater.inflate(R.layout.fragment_setting,container,false);
         View rootView = fragmentSettingBinding.getRoot();
-        settingViewModel = new SettingViewModel(MainActivity.currentUser.getFullname());
+        settingViewModel = new SettingViewModel(MainActivity.currentUser.getFullname(), getContext());
         fragmentSettingBinding.setSettingViewModel(settingViewModel);
         btn = (Button) rootView.findViewById(R.id.change_avt);
         img = (ImageView) rootView.findViewById(R.id.avt);

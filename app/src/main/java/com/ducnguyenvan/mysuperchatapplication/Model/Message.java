@@ -88,13 +88,14 @@ public class Message {
         return ("message: [" + this.name + ", " + this.message + ", " + this.timestamp + "]");
     }
 
-    public LocalMessage toLocalMessage() {
+    public LocalMessage toLocalMessage(boolean isUploaded) {
         LocalMessage msg = new LocalMessage();
         msg.message = this.message;
         msg.name = this.name;
         msg.timestamp = this.timestamp;
         msg.realtimestamp = this.realtimestamp;
         msg.convId = this.convId;
+        msg.isUploaded = isUploaded;
         return msg;
     }
 

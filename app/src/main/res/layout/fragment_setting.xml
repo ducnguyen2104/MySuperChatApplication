@@ -58,5 +58,15 @@
         android:textAllCaps="false"
         android:textSize="18sp"
         android:onClick="@{() -> settingViewModel.onChangePasswordClick()}"/>
+
+    <Button
+        android:id="@+id/clear_tables"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đăng xuất"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        android:onClick="@{() -> settingViewModel.onSignOutClick()}"/>
+
 </LinearLayout>
 </layout>
