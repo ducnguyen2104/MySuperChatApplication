@@ -8,7 +8,7 @@
     </data>
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <ImageView
@@ -16,7 +16,6 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/avt"
             android:id="@+id/your_msg_avt"
             android:visibility="@{message.visibility}"
             app:path="@{message.username}"/>
@@ -34,11 +33,11 @@
 
             <ImageView
                 android:id="@+id/message_content_img"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:maxHeight="90dp"
-                android:maxWidth="90dp"
-                android:src="@drawable/waaaht"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxHeight="150dp"
+                android:maxWidth="150dp"
+                android:scaleType="centerInside"
                 app:msgsource="@{message.imgName}"/>
         </FrameLayout>
     </RelativeLayout>

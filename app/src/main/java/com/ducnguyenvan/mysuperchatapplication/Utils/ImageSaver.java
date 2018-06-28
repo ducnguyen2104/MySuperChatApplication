@@ -40,8 +40,9 @@ public class ImageSaver {
 
     public void save(Bitmap bitmapImage) {
         FileOutputStream fileOutputStream = null;
+        File savedBitmap = createFile();
         try {
-            fileOutputStream = new FileOutputStream(createFile());
+            fileOutputStream = new FileOutputStream(savedBitmap);
             bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,6 +55,7 @@ public class ImageSaver {
                 e.printStackTrace();
             }
         }
+        Log.i("afterSave", "" + savedBitmap.exists() + ", " + savedBitmap.getPath());
     }
 
     @NonNull
@@ -68,7 +70,6 @@ public class ImageSaver {
         if(!directory.exists() && !directory.mkdirs()){
             Log.e("ImageSaver","Error creating directory " + directory);
         }
-
         return new File(directory, fileName);
     }
 

@@ -97,8 +97,10 @@ public class Conversation {
         String name = this.getMembers().size() == 2 ?
                 (MainActivity.currentUser.getUsername().equals(this.members.get(0)) ? this.members.get(1) : this.members.get(0)) :
                 membersToStringBuilder.toString();
-        String lastMsg = this.getLastMessage().getMessage().contains("/-img:") ? this.getLastMessage().getName() + " đã gửi một ảnh"
-                : (this.getLastMessage().getName()+ ": "+ this.getLastMessage().getMessage());
+        String lastMsg = this.getLastMessage().getMessage().contains("/-img:") ? this.getLastMessage().getName() + " đã gửi một ảnh" :
+                this.getLastMessage().getMessage().contains("/-audio:") ? this.getLastMessage().getName() + " đã gửi một đoạn ghi âm" :
+                        this.getLastMessage().getMessage().contains("/-video:") ? this.getLastMessage().getName() + " đã gửi một video" :
+                        (this.getLastMessage().getName()+ ": "+ this.getLastMessage().getMessage());
         return new ConversationItem(R.drawable.avt, this.getcId(), name, lastMsg,this.getLastMessage().getTimestamp()+"");
     }
 

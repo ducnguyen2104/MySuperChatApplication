@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="message"
+            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.YourVideoMessageItem"/>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_margin="10dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/your_msg_avt"
+            android:visibility="@{message.visibility}"
+            app:path="@{message.username}"/>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/your_msg_avt"
+            android:background="@drawable/your_msg_round_corner"
+            android:padding="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="1000dp">
+
+            <ImageView
+                android:layout_width="133dp"
+                android:layout_height="100dp"
+                android:id="@+id/message_content_img"
+                app:thumbnailsource="@{message.videoName}"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/black"
+                android:text="@{message.duration, default=duration}"
+                android:textColor="@android:color/white"
+                android:layout_alignBottom="@+id/message_content_img"
+                android:layout_alignRight="@+id/message_content_img"/>
+            <ImageView
+                android:layout_width="133dp"
+                android:layout_height="100dp"
+                android:src="@drawable/video"
+                android:padding="35dp"/>
+        </RelativeLayout>
+    </RelativeLayout>
+</layout>

@@ -1,14 +1,19 @@
 package com.ducnguyenvan.mysuperchatapplication;
 
+import android.Manifest;
 import android.arch.persistence.room.Room;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -67,12 +72,34 @@ public class MainActivity extends AppCompatActivity {
 
     public static String username;
 
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i("MainActivity", "onPause");
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i("MainActivity", "onResume");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i("MainActivity", "onDestroy");
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.i("MainActivity", "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         //get local database instance
-        localDatabase = Room.databaseBuilder(getApplicationContext(),LocalDatabase.class, "localDB")//.fallbackToDestructiveMigration()
+        localDatabase = Room.databaseBuilder(getApplicationContext(), LocalDatabase.class, "localDB")//.fallbackToDestructiveMigration()
                 .build();
         localDatabase.localDBDao().getLoggedInUser().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<LoggedInUser>() {
             @Override
@@ -83,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(LoggedInUser loggedInUser) {
                 Log.i("loggedin user", "" + loggedInUser);
-                if(loggedInUser == null || loggedInUser.getUsername() == null) {
-                    Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
+                if (loggedInUser == null || loggedInUser.getUsername() == null) {
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                     startActivity(intent);
                     finish();
                 }
@@ -139,9 +166,9 @@ public class MainActivity extends AppCompatActivity {
                         databaseReference.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                Map<String,Object> map = (HashMap<String,Object>) dataSnapshot.getValue();
+                                Map<String, Object> map = (HashMap<String, Object>) dataSnapshot.getValue();
                                 firebaseUser.mapToObject(map);
-                                if(!currentUser.equals(firebaseUser)) {
+                                if (!currentUser.equals(firebaseUser)) {
                                     currentUser = firebaseUser;
                                     Single.just(firebaseUser).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new SingleObserver<User>() {
                                         @Override
@@ -172,9 +199,9 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
-                                if(currentUser.getUsername().equals("")) {
-                                    Toast.makeText(getApplicationContext(),"Không thể lấy thông tin người dùng", Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
+                                if (currentUser.getUsername().equals("")) {
+                                    Toast.makeText(getApplicationContext(), "Không thể lấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                     startActivity(intent);
                                     finish();
                                 }
@@ -194,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -210,10 +237,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     public void onBackPressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.MyDialogTheme);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
 
         builder.setTitle("Thoát");
         builder.setMessage("Thoát ứng dụng?");
@@ -226,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
         });
         builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-               dialog.cancel();
+                dialog.cancel();
             }
         });
         builder.show();
@@ -284,9 +310,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(List<LocalMessage> localMessages) {
                         //reupload to firebase
-                        for(LocalMessage single : localMessages) {
+                        for (LocalMessage single : localMessages) {
                             String key = database.child("messages").child(single.convId).push().getKey();
-                            database.child("messages").child(single.convId).child(key).setValue(single.toMessage()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            database.child("messages").child(single.convId).child(single.convId + single.getRealtimestamp()).setValue(single.toMessage()).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     //update local msg status
@@ -328,29 +354,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<LocalConversation> localConversations) {
                 //reupload to firebase
-                for(LocalConversation single: localConversations) {
+                for (LocalConversation single : localConversations) {
                     database.child("conversations").child(single.getcId()).child("lastMessage").setValue(single.lastMessage)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Single.just(1).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new SingleObserver<Integer>() {
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
-                                public void onSubscribe(Disposable d) {
+                                public void onSuccess(Void aVoid) {
+                                    Single.just(1).subscribeOn(Schedulers.io()).observeOn(Schedulers.io()).subscribe(new SingleObserver<Integer>() {
+                                        @Override
+                                        public void onSubscribe(Disposable d) {
 
-                                }
+                                        }
 
-                                @Override
-                                public void onSuccess(Integer integer) {
-                                    localDatabase.localDBDao().updateLocalConvStatus(single.getcId(),true);
-                                }
+                                        @Override
+                                        public void onSuccess(Integer integer) {
+                                            localDatabase.localDBDao().updateLocalConvStatus(single.getcId(), true);
+                                        }
 
-                                @Override
-                                public void onError(Throwable e) {
+                                        @Override
+                                        public void onError(Throwable e) {
 
+                                        }
+                                    });
                                 }
                             });
-                        }
-                    });
                 }
             }
 

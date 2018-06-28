@@ -1,11 +1,17 @@
 package com.ducnguyenvan.mysuperchatapplication.Model;
 
+import android.util.Log;
+
 import com.ducnguyenvan.mysuperchatapplication.MainActivity;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.BaseMessageItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyAudioMessageItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyImageMessageItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyMessageTextItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.MyVideoMessageItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.YourAudioMessageItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.YourImageMessageItem;
 import com.ducnguyenvan.mysuperchatapplication.Model.Items.YourMessageTextItem;
+import com.ducnguyenvan.mysuperchatapplication.Model.Items.YourVideoMessageItem;
 import com.ducnguyenvan.mysuperchatapplication.R;
 
 import java.util.Map;
@@ -110,13 +116,34 @@ public class Message {
 
     public BaseMessageItem toMessageItem(boolean isFirst) {
         if (this.getMessage().contains("/-img:")) { //img message
-            String imgName = this.getConvId() + "/" + this.getMessage().substring(6, this.getMessage().length());
+            String imgName = this.getMessage().substring(6, this.getMessage().length());
             if (this.getName().equals(MainActivity.currentUser.getUsername())) {
                 return (new MyImageMessageItem(this.getName(), imgName, this.getTimestamp(), this.getRealtimestamp(), false));
             } else {
                 return (new YourImageMessageItem(R.drawable.avt, this.getName(), imgName, this.getTimestamp(), this.getRealtimestamp(), isFirst));
             }
-        } else { //text message
+        }
+        else if(this.getMessage().contains("/-audio:")) { //audio message
+            int durationIndex = this.message.indexOf("/-duration:");
+            String audioName = this.getMessage().substring(8, durationIndex - 1);
+            String duration = this.getMessage().substring(durationIndex + 11, this.getMessage().length());
+            if (this.getName().equals(MainActivity.currentUser.getUsername())) {
+                return (new MyAudioMessageItem(this.getName(), audioName, duration, this.getTimestamp(), this.getRealtimestamp()));
+            } else {
+                return (new YourAudioMessageItem(R.drawable.avt, this.getName(), audioName, duration, this.getTimestamp(), this.getRealtimestamp(), isFirst));
+            }
+        }
+        else if (this.getMessage().contains("/-video:")) { //video message
+            int durationIndex = this.message.indexOf("/-duration:");
+            String videoName = this.getMessage().substring(8, durationIndex - 1);
+            String duration = this.getMessage().substring(durationIndex + 11, this.getMessage().length());
+            if (this.getName().equals(MainActivity.currentUser.getUsername())) {
+                return (new MyVideoMessageItem(this.getName(), videoName, duration, this.getTimestamp(), this.getRealtimestamp(), false));
+            } else {
+                return (new YourVideoMessageItem(R.drawable.avt, this.getName(), videoName, duration, this.getTimestamp(), this.getRealtimestamp(), isFirst));
+            }
+        }
+        else { //text message
             if (this.getName().equals(MainActivity.currentUser.getUsername())) {
                return (new MyMessageTextItem(this.getName(), this.getMessage(), this.getTimestamp(), this.getRealtimestamp()));
             } else {

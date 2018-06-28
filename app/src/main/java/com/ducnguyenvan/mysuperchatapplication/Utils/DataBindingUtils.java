@@ -50,6 +50,7 @@ public class DataBindingUtils  {
 
     @BindingAdapter("msgsource")
     public static void setMsgsource(final ImageView imageView, String source) {
+        Log.i("img msg", "" + source);
         final Context context = imageView.getContext();
         Bitmap bitmap = new ImageSaver(context).
                 setFileName(source + ".jpg").
@@ -58,9 +59,26 @@ public class DataBindingUtils  {
         if(bitmap != null) {
             imageView.setImageBitmap(bitmap);
         } else {
-            Log.i("load firebase", "" + source);
             FirebaseStorage storage = FirebaseStorage.getInstance();
             final StorageReference msgStorageRef = storage.getReference().child("messages").child(source + ".jpg");
+            GlideApp.with((Activity) context).load(msgStorageRef)
+                    .into(imageView);
+        }
+    }
+
+    @BindingAdapter("thumbnailsource")
+    public static void setThumnailsource(final ImageView imageView, String source) {
+        Log.i("thumbnail", "" + source);
+        final Context context = imageView.getContext();
+        Bitmap bitmap = new ImageSaver(context).
+                setFileName(source + "thumbnail.jpg").
+                setDirectoryName("messages").
+                load();
+        if(bitmap != null) {
+            imageView.setImageBitmap(bitmap);
+        } else {
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            final StorageReference msgStorageRef = storage.getReference().child("messages").child(source + "thumbnail.jpg");
             GlideApp.with((Activity) context).load(msgStorageRef)
                     .into(imageView);
         }
@@ -105,7 +123,8 @@ public class DataBindingUtils  {
             });*/
         }
     }
-    @BindingAdapter("android:src")
+
+    @BindingAdapter("iconsrc")
     public static void setImageViewResource(ImageView imageView, int resource) {
         imageView.setImageResource(resource);
     }

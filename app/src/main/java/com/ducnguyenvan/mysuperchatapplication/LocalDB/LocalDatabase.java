@@ -8,7 +8,7 @@ import com.ducnguyenvan.mysuperchatapplication.Model.LocalMessage;
 import com.ducnguyenvan.mysuperchatapplication.Model.LocalUser;
 import com.ducnguyenvan.mysuperchatapplication.Model.LoggedInUser;
 
-@Database(entities = {LocalUser.class, LocalConversation.class, LocalMessage.class, LoggedInUser.class}, version = 1)
+@Database(entities = {LocalUser.class, LocalConversation.class, LocalMessage.class, LoggedInUser.class}, version = 2)
 public abstract class LocalDatabase extends RoomDatabase {
     public abstract LocalDBDao localDBDao();
 }

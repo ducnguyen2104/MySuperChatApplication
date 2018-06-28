@@ -1,7 +1,9 @@
 package com.ducnguyenvan.mysuperchatapplication.Model.Items;
 
 import android.databinding.Bindable;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.ducnguyenvan.mysuperchatapplication.BR;
 
@@ -87,5 +89,6 @@ public class MyImageMessageItem extends BaseMessageItem {
         this.status = status;
         registry.notifyChange(this, BR.status);
     }
+
 }
 

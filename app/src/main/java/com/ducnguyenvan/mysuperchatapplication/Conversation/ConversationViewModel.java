@@ -168,7 +168,9 @@ public class ConversationViewModel extends ViewModel {
 
                                     @Override
                                     public void onSuccess(Integer integer) {
-                                        ConversationActivity.adapter.notifyItemInserted(ConversationActivity.messageItems.size());
+                                        Log.i("ConvVM", "item added: " + message.getMessage());
+                                        ConversationActivity.adapter.notifyItemInserted(ConversationActivity.messageItems.size() - 1);
+                                        ConversationActivity.recyclerView.scrollToPosition(ConversationActivity.messageItems.size() - 1);
                                         clearTextBox();
                                     }
 
@@ -232,7 +234,6 @@ public class ConversationViewModel extends ViewModel {
                                         });
                             }
                         });
-
             } else { //create new conversation
                 key = ConversationActivity.currentCId;
                 if (!isGroupChat) { //conversation is not a group chat
@@ -270,9 +271,10 @@ public class ConversationViewModel extends ViewModel {
 
                                         @Override
                                         public void onSuccess(ArrayList<ConversationItem> conversationItems) {
-                                            HistoryFragment.adapter = new HistoryRvAdapter(conversationItems,context);
+                                            HistoryFragment.adapter = new HistoryRvAdapter(conversationItems, context);
                                             HistoryFragment.recyclerView.setAdapter(HistoryFragment.adapter);
                                             ConversationActivity.isConversationCreated = true;
+                                            Log.i("ConvVM", "new conv item added: " + newMsg.getMessage());
                                             ConversationActivity.messageItems.add(newMsg.toMessageItem(true));
                                             ConversationActivity.initRecyclerView();
                                             clearTextBox();

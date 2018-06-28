@@ -48,63 +48,119 @@
             android:id="@+id/conversation_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/emoji_grid"
-            android:layout_below="@+id/conversation_toolbar"></android.support.v7.widget.RecyclerView>
+            android:layout_above="@+id/extend_layout"
+            android:layout_below="@+id/conversation_toolbar"
+            android:background="@android:color/background_light"></android.support.v7.widget.RecyclerView>
 
         <EditText
             android:id="@+id/conversation_edt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/send_img_btn"
+            android:layout_toStartOf="@+id/conversation_btn_send"
             android:ellipsize="end"
             android:hint="Bấm để nhập tin nhắn..."
             android:maxLines="2"
             android:text="@={conversationViewModel.message}" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:id="@+id/record_audio"
+            android:src="@drawable/record"
+            android:layout_alignParentStart="true"
+            android:layout_above="@id/conversation_edt"
+            android:scaleType="fitXY"
+            android:padding="5dp"/>
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@android:color/transparent"
             android:id="@+id/send_img_btn"
-            android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/add_emoji_btn"
-            android:text="◪"
+            android:layout_above="@id/conversation_edt"
+            android:layout_toEndOf="@id/record_audio"
+            android:src="@drawable/image"
             android:textSize="24sp"
-            android:minWidth="40dp" />
+            android:minWidth="40dp"
+            android:scaleType="fitXY"
+            android:padding="5dp"/>
 
-        <Button
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:id="@+id/send_video_btn"
+            android:layout_above="@id/conversation_edt"
+            android:layout_toEndOf="@id/send_img_btn"
+            android:src="@drawable/video"
+            android:textSize="24sp"
+            android:minWidth="40dp"
+            android:scaleType="fitXY"
+            android:padding="5dp"/>
+
+        <ImageButton
             android:background="@android:color/transparent"
             android:id="@+id/add_emoji_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/conversation_btn_send"
-            android:text="☺"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_above="@id/conversation_edt"
+            android:layout_toEndOf="@id/send_video_btn"
+            android:src="@drawable/emoji"
             android:textSize="24sp"
-            android:minWidth="40dp"/>
+            android:minWidth="40dp"
+            android:scaleType="fitXY"
+            android:padding="5dp"/>
 
-        <Button
+        <ImageButton
             android:background="@android:color/transparent"
             android:id="@+id/conversation_btn_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
             android:onClick="@{() -> conversationViewModel.onSendBtnClicked()}"
-            android:text="➤"
+            android:src="@drawable/send"
             android:textSize="24sp"
-            android:minWidth="40dp"/>
-        <GridView
+            android:minWidth="40dp"
+            android:scaleType="fitXY"
+            android:padding="5dp"/>
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:numColumns="7"
-            android:id="@+id/emoji_grid"
-            android:layout_above="@+id/conversation_edt"
-            android:visibility="gone"
-            android:background="@android:color/transparent">
-
-        </GridView>
-
+            android:id="@+id/extend_layout"
+            android:layout_above="@+id/add_emoji_btn">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/record_layout"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <ImageButton
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/record"
+                    android:scaleType="fitXY"
+                    android:padding="10dp"
+                    android:background="@drawable/round"
+                    android:id="@+id/start_stop_recording"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nhấn để ghi âm"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/record_txt"/>
+            </LinearLayout>
+            <GridView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:numColumns="7"
+                android:id="@+id/emoji_grid"
+                android:visibility="gone"
+                android:background="@android:color/transparent">
+            </GridView>
+        </FrameLayout>
     </RelativeLayout>
 </layout>

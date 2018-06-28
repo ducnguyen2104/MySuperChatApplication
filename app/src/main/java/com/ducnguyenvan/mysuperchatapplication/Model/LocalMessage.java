@@ -9,8 +9,7 @@ import java.util.Map;
 
 
 @Entity(tableName = "messages",
-        primaryKeys = {"name", "realtimestamp"},
-        foreignKeys = @ForeignKey(entity = LocalConversation.class, parentColumns = "cId", childColumns = "convId"))
+        primaryKeys = {"name", "realtimestamp"})
 public class LocalMessage {
     public String message;
     @NonNull
