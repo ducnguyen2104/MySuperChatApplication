@@ -4,13 +4,13 @@
     <data>
         <variable
             name="message"
-            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.MyImageMessageItem"/>
+            type="com.ducnguyen.mysuperchatapplication.Model.Items.MyImageMessageItem"/>
     </data>
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="right">
+        android:gravity="end">
 
         <Button
             android:layout_width="wrap_content"
@@ -23,7 +23,7 @@
             android:text="↺"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_marginLeft="100dp"
+            android:layout_marginStart="100dp"
             android:visibility="@{message.retryButtonVisibility}"/>
 
         <LinearLayout
@@ -31,7 +31,7 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:padding="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
@@ -52,7 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{message.status}"
-                android:layout_gravity="right"
+                android:layout_gravity="end"
                 android:visibility="@{message.statusTextViewVisibility}"/>
         </LinearLayout>
     </RelativeLayout>

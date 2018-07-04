@@ -7,7 +7,7 @@
 
         <variable
             name="loginViewModel"
-            type="com.ducnguyenvan.mysuperchatapplication.Login.LoginViewModel" />
+            type="com.ducnguyen.mysuperchatapplication.Login.LoginViewModel" />
     </data>
 
     <LinearLayout

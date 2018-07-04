@@ -6,7 +6,7 @@
 
         <variable
             name="contact"
-            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.SelectableContactItem" />
+            type="com.ducnguyen.mysuperchatapplication.Model.Items.SelectableContactItem" />
 
     </data>
 

@@ -4,7 +4,7 @@
         <import type="android.view.View"/>
         <variable
             name="settingViewModel"
-            type="com.ducnguyenvan.mysuperchatapplication.Setting.SettingViewModel"/>
+            type="com.ducnguyen.mysuperchatapplication.Setting.SettingViewModel"/>
     </data>
 <LinearLayout
     android:layout_width="match_parent"

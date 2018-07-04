@@ -5,7 +5,7 @@
 
         <variable
             name="contactViewModel"
-            type="com.ducnguyenvan.mysuperchatapplication.Contacts.ContactViewModel" />
+            type="com.ducnguyen.mysuperchatapplication.Contacts.ContactViewModel" />
     </data>
 
     <android.support.design.widget.CoordinatorLayout

@@ -4,5 +4,6 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="text_size">30px</string>
     <string name="pick_image_intent_text">Chọn ảnh</string>
+    <string name="pick_video_intent_text">Chọn video</string>
     <string name="smile_emoji">Tin nhắn &#128522;</string>
 </resources>

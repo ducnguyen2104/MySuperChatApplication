@@ -4,10 +4,10 @@
     <data>
         <variable
             name="viewModel"
-            type="com.ducnguyenvan.mysuperchatapplication.Contacts.ContactItemViewModel"/>
+            type="com.ducnguyen.mysuperchatapplication.Contacts.ContactItemViewModel"/>
         <variable
             name="contact"
-            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.ContactItem"/>
+            type="com.ducnguyen.mysuperchatapplication.Model.Items.ContactItem"/>
     </data>
 
 <RelativeLayout

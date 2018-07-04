@@ -4,7 +4,7 @@
     <data>
         <variable
             name="message"
-            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.MyVideoMessageItem"/>
+            type="com.ducnguyen.mysuperchatapplication.Model.Items.MyVideoMessageItem"/>
     </data>
 
     <RelativeLayout
@@ -16,38 +16,51 @@
             android:id="@+id/message_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:padding="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_margin="10dp"
+            android:layout_marginLeft="100dp"
             android:background="@drawable/my_msg_round_corner">
             <ImageView
-                android:layout_width="133dp"
+                android:layout_width="150dp"
                 android:layout_height="100dp"
+                app:layout_height="@{message.height*3/4}"
+                app:layout_width="@{message.width*3/4}"
                 android:id="@+id/thumbnail"
-                app:thumbnailsource="@{message.videoName}"/>
+                app:thumbnailsource="@{message.videoName}"
+                android:visibility="@{message.thumbnailVisibility,default=visible}"/>
             <ImageView
-                android:layout_width="133dp"
-                android:layout_height="100dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/video"
-                android:padding="35dp"/>
+                android:layout_centerInParent="true"
+                android:scaleType="fitXY"
+                android:visibility="@{message.thumbnailVisibility,default=visible}"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/black"
-                android:text="@{message.duration}"
+                android:text="@{message.duration,default=duration}"
                 android:textColor="@android:color/white"
                 android:layout_alignBottom="@+id/thumbnail"
-                android:layout_alignRight="@+id/thumbnail"/>
+                android:layout_alignEnd="@+id/thumbnail"
+                android:visibility="@{message.thumbnailVisibility,default=visible}"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Đang gửi..."
-                android:layout_gravity="right"
-                android:visibility="@{message.vidStatusTextViewVisibility}"
-                android:layout_below="@id/thumbnail" />
+                android:visibility="@{message.vidStatusTextViewVisibility,default=visible}"
+                android:layout_below="@id/thumbnail"/>
+            <com.google.android.exoplayer2.ui.PlayerView
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                app:layout_height="@{message.height}"
+                app:layout_width="@{message.width}"
+                android:id="@+id/player"
+                app:videosource="@{message.videoName}"
+                app:controller_layout_id="@layout/custom_exo_player"
+                android:visibility="@{message.playerVisibility,default=gone}"/>
+
         </RelativeLayout>
     </RelativeLayout>
 </layout>

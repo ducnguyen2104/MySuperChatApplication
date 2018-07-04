@@ -4,10 +4,10 @@
     <data>
         <variable
             name="viewModel"
-            type="com.ducnguyenvan.mysuperchatapplication.History.ConversationItemViewModel"/>
+            type="com.ducnguyen.mysuperchatapplication.History.ConversationItemViewModel"/>
         <variable
             name="conversation"
-            type="com.ducnguyenvan.mysuperchatapplication.Model.Items.ConversationItem"/>
+            type="com.ducnguyen.mysuperchatapplication.Model.Items.ConversationItem"/>
     </data>
 <RelativeLayout
     android:layout_width="match_parent"

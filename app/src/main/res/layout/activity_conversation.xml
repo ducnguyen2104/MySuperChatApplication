@@ -6,7 +6,7 @@
 
         <variable
             name="conversationViewModel"
-            type="com.ducnguyenvan.mysuperchatapplication.Conversation.ConversationViewModel" />
+            type="com.ducnguyen.mysuperchatapplication.Conversation.ConversationViewModel" />
     </data>
 
     <RelativeLayout
@@ -108,6 +108,19 @@
             android:layout_above="@id/conversation_edt"
             android:layout_toEndOf="@id/send_video_btn"
             android:src="@drawable/emoji"
+            android:textSize="24sp"
+            android:minWidth="40dp"
+            android:scaleType="fitXY"
+            android:padding="5dp"/>
+
+        <ImageButton
+            android:background="@android:color/transparent"
+            android:id="@+id/send_location_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_above="@id/conversation_edt"
+            android:layout_toEndOf="@id/add_emoji_btn"
+            android:src="@drawable/placeholder"
             android:textSize="24sp"
             android:minWidth="40dp"
             android:scaleType="fitXY"

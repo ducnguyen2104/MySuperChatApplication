@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.ducnguyenvan.mysuperchatapplication.History.CreateGroupChat.CreateGroupChatViewModel"/>
+            type="com.ducnguyen.mysuperchatapplication.History.CreateGroupChat.CreateGroupChatViewModel"/>
     </data>
 <RelativeLayout
     android:layout_width="match_parent" android:layout_height="match_parent">
